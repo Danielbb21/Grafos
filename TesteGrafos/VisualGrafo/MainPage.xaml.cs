@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using TesteGrafos;
+using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -24,8 +29,8 @@ namespace VisualGrafo
     /// </summary>
     public sealed partial class MainPage : Page
     {
-
-        private Grafo grafoCriado = new Grafo();
+        private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        private Grafo grafoCriado;
         private int vertices = 0;
         private int arestas = 0;
         private int contadorComponentes = 0;
@@ -43,6 +48,7 @@ namespace VisualGrafo
             ExibirInformacoes.Click += Btn_ExibirInformacoes;
             ExibirTutorialCriar.Click += Btn_ExibirTutorialCriar;
             EncontrarCaminho.Click += Btn_EncontrarCaminho;
+            GravarGrafo.Click += Btn_GravarGrafo;
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -87,15 +93,18 @@ namespace VisualGrafo
         private void Btn_DefinicaoVertices(object sender, RoutedEventArgs e)
         {
             //Primeiro checa se o campo ficou vazio
-            if(NumVertices.Text != null)
+            if(NumVertices.Text != null )
             {
                 //Define o numero de vertices com base no campo
                 vertices = int.Parse(NumVertices.Text);
                 //Desbloqueia a interação com a insercao de arestas
                 MenuArestas.IsHitTestVisible = true;
 
+                grafoCriado = new Grafo(vertices);
+
                 //Inicialisa a matriz de adjacencia
                 grafoCriado.MatrizAdjacencia = new int[vertices, vertices];
+                grafoCriado.ListaAdjacencia = new int[vertices][];
 
                 //Zera todos os campos da matriz e inicializa os vertices dentro do grafo
                 for (int i = 0; i < vertices; i++)
@@ -113,6 +122,8 @@ namespace VisualGrafo
                 }
                 Mensagem("O grafo foi criado com " + vertices +" vertices.", "GRAFO CRIADO");
                 DefinicaoVertices.IsHitTestVisible = false;
+                RadioDirigido.IsHitTestVisible = false;
+                RadioNaoDirigido.IsHitTestVisible = false;
             }
         }
         private void Btn_CriarAresta(object sender, RoutedEventArgs e) 
@@ -170,6 +181,8 @@ namespace VisualGrafo
 
                             //Adiciona no stackpanel
                             ArestasAdicionadas.Children.Add(NovaAresta);
+
+                            grafoCriado.addEdgeAtEnd(Ligacao.Entrada.Nametag - 1, Ligacao.Saida.Nametag, 1);
                         }
                         else
                         {
@@ -208,6 +221,8 @@ namespace VisualGrafo
             ArestasAdicionadas.Children.Clear();
             MenuArestas.IsHitTestVisible = false;
             DefinicaoVertices.IsHitTestVisible = true;
+            RadioDirigido.IsHitTestVisible = true;
+            RadioNaoDirigido.IsHitTestVisible = true;
             vertices = 0;
             arestas = 0;
             contadorComponentes = 0;
@@ -215,6 +230,10 @@ namespace VisualGrafo
         private void Btn_ExibirTutorialCriar(object sender, RoutedEventArgs e) 
         {
             TutorialCriarGrafo.IsOpen = true;
+        }
+        private void Btn_GravarGrafo(object sender, RoutedEventArgs e) 
+        {
+            GravarTxt();
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -325,6 +344,40 @@ namespace VisualGrafo
             foreach(Vertice v in grafoCriado.Conteudo) 
             {
                 v.IsChecked = false;
+            }
+        }
+
+        //TODO colocar o conteudo do grafo
+        private void GravarTxt()
+        {
+            //criando arquivo
+            string filePath = localFolder.Path + "\\" + "teste.txt";
+
+            //Cria o arquivo se ele não existir
+            StreamWriter sw;
+            if (!File.Exists(filePath))
+            {
+                sw = File.CreateText(filePath);
+                sw.Close();
+            }
+
+            //Não grava-se o \n no arquivo
+            //Using isola uma declaração que nao funcionara fora dele
+            //Escreve no arquivo pulando linha
+            using (sw = File.CreateText(filePath))
+            {
+                sw.WriteLine("TEXTO");
+                sw.Close();
+            }
+
+            //Leitura dos dados
+            using (StreamReader sr = File.OpenText(filePath))
+            {
+                string s;
+                while ((s = sr.ReadLine()) != null)
+                {
+                    Console.WriteLine(s);
+                }
             }
         }
     }

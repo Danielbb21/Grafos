@@ -34,6 +34,8 @@
             <Button Content="Ok" x:Name="DefinicaoVertices" Background="DimGray" Foreground="White" Canvas.Left="219" Canvas.Top="77" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
             <Button Content="Apagar grafo" x:Name="ClearGrafo" Background="DimGray" Foreground="White" Canvas.Left="765" Canvas.Top="77" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
 
+            <Button Content="Gravar grafo" x:Name="GravarGrafo" Background="DimGray" Foreground="White" Canvas.Left="765" Canvas.Top="475" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
+
             <Button x:Name="ExibirTutorialCriar" Content="Tutorial" Background="DimGray" Foreground="White" Canvas.Left="765" Canvas.Top="276" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
 
 

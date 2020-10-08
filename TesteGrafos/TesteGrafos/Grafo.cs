@@ -12,12 +12,41 @@ namespace TesteGrafos
         public List<Vertice> Conteudo { get; set; }
         public bool IsDirigido { get; set; }
 		public int[][] distanceMatrix { get; set; }
+		public int[][] ListaAdjacencia { get; set; }
 
-		public Grafo() 
+		public LinkedList<Tuple<int, int>>[] adjacencyList;
+
+		public Grafo(int vertices) 
         {
             this.IsDirigido = false;
             this.Conteudo = new List<Vertice>();
-        }
+
+			adjacencyList = new LinkedList<Tuple<int, int>>[vertices];
+
+			for (int i = 0; i < adjacencyList.Length; ++i)
+			{
+				adjacencyList[i] = new LinkedList<Tuple<int, int>>();
+			}
+		}
+
+		// Appends a new Edge to the linked list
+		public void addEdgeAtEnd(int startVertex, int endVertex, int weight)
+		{
+			adjacencyList[startVertex].AddLast(new Tuple<int, int>(endVertex, weight));
+		}
+
+
+		// Returns a copy of the Linked List of outward edges from a vertex
+		public LinkedList<Tuple<int, int>> this[int index]
+		{
+			get
+			{
+				LinkedList<Tuple<int, int>> edgeList
+							   = new LinkedList<Tuple<int, int>>(adjacencyList[index]);
+
+				return edgeList;
+			}
+		}
 
 		public void CreateDM(int vertices)
 		{
