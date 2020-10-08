@@ -1,0 +1,111 @@
+﻿<Page
+    x:Class="VisualGrafo.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VisualGrafo"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Width="1366"
+    Height="700"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Canvas>
+        <Canvas x:Name="BlocoTitulo">
+            <Border  BorderBrush="Black" Background="Gray" BorderThickness="10" Height="93" Width="1366"/>
+            <TextBlock Text="GRAFOS" x:Name="Titulo" FontSize="60" Canvas.Left="15" Canvas.Top="7" Foreground="White" FontWeight="Bold"/>
+        </Canvas>
+
+        <Canvas x:Name="MenuSelecao" Canvas.Top = "130" Width="342" Height="570">
+            <Border  BorderBrush="Black" Background="Gray" BorderThickness="10" Height="614" Width="345" Canvas.Top="-46"/>
+            <Button Foreground="White" Content="IR" FontSize="30" FontWeight="SemiBold" BorderThickness="5" x:Name="SelecionarPagina" Width="150" Height="59" Canvas.Left="17" Canvas.Top="-11" Background="DarkGray" BorderBrush="Black"/>
+            <ComboBox x:Name="Selecao" Canvas.Left="17" Canvas.Top="72" Width="310" Foreground="Black" Background="White" BorderBrush="Black" BorderThickness="5">
+                <ComboBoxItem Foreground="Black" Content="Criar grafo" IsSelected="True"/>
+                <ComboBoxItem Content="Informações sobre o grafo"/>
+                <ComboBoxItem Content="Caminho mínimo entre vértices"/>
+                <ComboBoxItem Content="Distribuição espacial circular"/>
+                <ComboBoxItem Content="Distribuição espacial aleatória"/>
+            </ComboBox>
+        </Canvas>
+
+        <Canvas x:Name="BlocoCriarGrafo" Opacity="0" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
+            <TextBlock Text="Número de Vértices:" Canvas.Left="21" FontSize="20" Canvas.Top="24"/>
+            <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="NumVertices" Width="201" Canvas.Left="219" Canvas.Top="24"/>
+            <Button Content="Ok" x:Name="DefinicaoVertices" Background="DimGray" Foreground="White" Canvas.Left="219" Canvas.Top="77" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
+            <Button Content="Apagar grafo" x:Name="ClearGrafo" Background="DimGray" Foreground="White" Canvas.Left="765" Canvas.Top="77" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
+
+            <Button x:Name="ExibirTutorialCriar" Content="Tutorial" Background="DimGray" Foreground="White" Canvas.Left="765" Canvas.Top="276" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
+
+
+            <TextBlock Text="Selecione o tipo de grafo:" Canvas.Left="21" FontSize="20" Canvas.Top="158"/>
+            <RadioButton GroupName="TipoGrafo" x:Name="RadioDirigido"  Canvas.Left="287" Canvas.Top="158" Content="Dirigido" Width="87"/>
+            <RadioButton GroupName="TipoGrafo" IsChecked="True" x:Name="RadioNaoDirigido" Canvas.Left="407" Canvas.Top="158" Content="Não Dirigido"/>
+
+            <TextBlock Text="Criar Aresta:" Canvas.Left="21" FontSize="20" Canvas.Top="272"/>
+            <Canvas IsHitTestVisible="False" x:Name="MenuArestas" Height="291" Width="211" Canvas.Left="21" Canvas.Top="304">
+                <TextBlock Text="Vertice 1"/>
+                <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="BoxVertice1" Canvas.Top="24" Width="187"/>
+                <TextBlock Text="Vertice 2" Canvas.Top="80"/>
+                <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="BoxVertice2" Canvas.Top="104" Width="187"/>
+                <Button x:Name="CriarAresta" Content="Criar" Background="DimGray" Foreground="White" Canvas.Top="176" Width="187"/>
+
+
+            </Canvas>
+
+            <Popup x:Name="TutorialCriarGrafo" 
+                    IsOpen="False" 
+                    IsLightDismissEnabled="True"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"               
+                    HorizontalOffset="200"
+                    VerticalOffset="148"
+                    LightDismissOverlayMode="Off">
+
+                <Canvas>
+                    <Border Background="Gray" BorderBrush="Black" BorderThickness="3" Width="500" Height="200">
+                        <Canvas>
+
+                        </Canvas>
+                    </Border>
+
+                </Canvas>
+            </Popup>
+
+            <TextBlock Text="Arestas Inseridas:" FontSize="20" Canvas.Left="359" Canvas.Top="272"/>
+            <StackPanel x:Name="ArestasAdicionadas" Height="217" Width="152" Canvas.Left="359" Canvas.Top="304"/>
+        </Canvas>
+
+        <Canvas x:Name="BlocoInformacoesGrafo" Opacity="0" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
+            <TextBlock Text="Número de componentes: " FontSize="20" Canvas.Left="30" Canvas.Top="167"/>
+            <TextBlock Text="Número de vértices: " FontSize="20" Canvas.Left="30" Canvas.Top="339"/>
+            <TextBlock Text="Número de arestas: " FontSize="20" Canvas.Left="30" Canvas.Top="253"/>
+
+            <Border BorderBrush="Black" BorderThickness="2" Width="478" Canvas.Left="280" Canvas.Top="167">
+                <TextBlock x:Name="ContComp" Text="Temp" FontSize="20"/>
+            </Border>
+
+            <Border BorderBrush="Black" BorderThickness="2" Width="478" Canvas.Left="280" Canvas.Top="253">
+                <TextBlock x:Name="ContArestas" Text="Temp" FontSize="20"/>
+            </Border>
+
+            <Border BorderBrush="Black" BorderThickness="2" Width="478" Canvas.Left="280" Canvas.Top="339">
+                <TextBlock x:Name="ContVertices" Text="Temp" FontSize="20"/>
+            </Border>
+
+            <Button Content="Exibir" FontSize="20" x:Name="ExibirInformacoes" Background="DimGray" Foreground="White" Canvas.Left="30" Canvas.Top="436" Height="54" Width="139" BorderThickness="2" BorderBrush="DarkGray"/>
+
+        </Canvas>
+
+        <Canvas x:Name="BlocoCaminhoMinimo" Opacity="0" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
+            <Button Content="Encontrar Caminho" FontSize="20" x:Name="EncontrarCaminho" Background="DimGray" Foreground="White" Canvas.Left="44" Canvas.Top="304" Height="54" Width="139" BorderThickness="2" BorderBrush="DarkGray"/>
+            <TextBlock Text="Vertice origem: " FontSize="20" Canvas.Left="44" Canvas.Top="101"/>
+            <TextBlock Text="Vertice saida: " FontSize="20" Canvas.Left="44" Canvas.Top="182"/>
+            <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="VerticeOrigem" Height="36" Width="219" Canvas.Left="208" Canvas.Top="101" />
+            <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="VerticeSaida" Height="36" Width="219" Canvas.Left="208" Canvas.Top="182" />
+
+            <Border BorderBrush="Black" BorderThickness="4" Width="468" Canvas.Left="511" Canvas.Top="101" Height="257">
+                <TextBlock x:Name="JanelaCaminho" Width="468" Height="257" FontSize="40" FontWeight="Bold"/>
+            </Border>
+        </Canvas>
+
+    </Canvas>
+</Page>
