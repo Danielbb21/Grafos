@@ -93,7 +93,7 @@ namespace VisualGrafo
         private void Btn_DefinicaoVertices(object sender, RoutedEventArgs e)
         {
             //Primeiro checa se o campo ficou vazio
-            if(NumVertices.Text != null )
+            if(NumVertices.Text != "" )
             {
                 //Define o numero de vertices com base no campo
                 vertices = int.Parse(NumVertices.Text);
@@ -275,7 +275,20 @@ namespace VisualGrafo
                 {
                     //Joga o numero de arestas que são passadas no processo do caminho
                     //TODO exibir o caminho em si
-                    JanelaCaminho.Text = grafoCriado.distanceMatrix[numDefinido1 - 1][numDefinido2 - 1].ToString();
+
+                    string caminho = " " + numDefinido2.ToString() + " ";
+                    int aux = numDefinido2 - 1;
+
+                    while (!caminho.Contains(" " + numDefinido1.ToString() + " ")) 
+                    {
+                        caminho += "- " + (grafoCriado.distanceMatrix[numDefinido1 - 1][aux] + 1).ToString() + " ";
+                        aux = grafoCriado.distanceMatrix[numDefinido1 - 1][aux];
+                        if (aux == -1) break;
+                    }
+
+                    if(aux == -1) JanelaCaminho.Text = "INFINITO";
+                    else JanelaCaminho.Text = caminho;
+                    
                     
                 }
                 else Mensagem("Preencha um vertice valido para realizar a busca.", "ERRO: Vertice invalido");
