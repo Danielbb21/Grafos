@@ -33,6 +33,7 @@ namespace VisualGrafo
         private Grafo grafoCriado;
         private int vertices = 0;
         private int arestas = 0;
+        private bool IsDirigido = false;
         private int contadorComponentes = 0;
 
         public MainPage()
@@ -101,6 +102,7 @@ namespace VisualGrafo
                 MenuArestas.IsHitTestVisible = true;
 
                 grafoCriado = new Grafo(vertices);
+                grafoCriado.IsDirigido = IsDirigido;
 
                 //Inicialisa a matriz de adjacencia
                 grafoCriado.MatrizAdjacencia = new int[vertices, vertices];
@@ -208,11 +210,11 @@ namespace VisualGrafo
         {
             if (RadioDirigido.IsChecked.Equals(true)) 
             {
-                grafoCriado.IsDirigido = true;
+                IsDirigido = true;
             }
             else 
             {
-                grafoCriado.IsDirigido = false;
+                IsDirigido = false;
             }
         }
         private void Btn_ClearGrafo(object sender, RoutedEventArgs e) 
