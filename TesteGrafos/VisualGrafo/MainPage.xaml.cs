@@ -275,17 +275,8 @@ namespace VisualGrafo
                 {
                     //Joga o numero de arestas que são passadas no processo do caminho
                     //TODO exibir o caminho em si
-
-                    string caminho = numDefinido2.ToString();
-                    int aux = numDefinido2 - 1;
-
-                    while (!caminho.Contains(numDefinido1.ToString())) 
-                    {
-                        caminho += " - " + (grafoCriado.distanceMatrix[numDefinido1 - 1][aux] + 1).ToString();
-                        aux = grafoCriado.distanceMatrix[numDefinido1 - 1][numDefinido2 - 1];
-                    }
-
-                    JanelaCaminho.Text = caminho;
+                    JanelaCaminho.Text = grafoCriado.distanceMatrix[numDefinido1 - 1][numDefinido2 - 1].ToString();
+                    
                 }
                 else Mensagem("Preencha um vertice valido para realizar a busca.", "ERRO: Vertice invalido");
             }

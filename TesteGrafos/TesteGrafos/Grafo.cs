@@ -107,7 +107,7 @@ namespace TesteGrafos
 			}
 			//Caso queira o numero bote dist
 			//Caso queira o caminho bote pred
-			return pred;
+			return dist;
 		}
 
 		private int[] ReturnNeighbors(int vertex, int vertices)
