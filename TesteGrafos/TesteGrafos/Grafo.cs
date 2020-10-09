@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace TesteGrafos
 {
@@ -34,7 +36,6 @@ namespace TesteGrafos
 		{
 			adjacencyList[startVertex].AddLast(new Tuple<int, int>(endVertex, weight));
 		}
-
 
 		// Returns a copy of the Linked List of outward edges from a vertex
 		public LinkedList<Tuple<int, int>> this[int index]
@@ -118,6 +119,84 @@ namespace TesteGrafos
 				neighbors[i] = MatrizAdjacencia[vertex, i];
 			}
 			return neighbors;
+		}
+
+		public void GravarTxt(bool IsDirigido)
+		{
+			StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+			//criando arquivo
+			string filePath = localFolder.Path + "\\" + "teste.txt";
+			string DataFile = "*Vertices ";
+			//Cria o arquivo se ele não existir
+			StreamWriter sw;
+			if (!File.Exists(filePath))
+			{
+				sw = File.CreateText(filePath);
+				sw.Close();
+			}
+
+			//Não grava-se o \n no arquivo
+			//Using isola uma declaração que nao funcionara fora dele
+			//Escreve no arquivo pulando linha
+			using (sw = File.CreateText(filePath))
+			{
+				//concatenação da string
+				List<Aresta> ListadeArestas = new List<Aresta>();
+				
+
+				DataFile += this.Conteudo.Count() + "\n";
+				
+				foreach(Vertice v in Conteudo)
+                {
+					DataFile += v.Nametag + " " + v.Nametag + "\n";
+					//guarda todas as arestas de todos os vertices
+					ListadeArestas.AddRange(v.Adjacencia);
+                }
+                if (IsDirigido) //checa se o grafo dirigido
+                {
+					//grafo dirigido
+					DataFile += "*Arcs\n";
+                    foreach (var aresta in ListadeArestas)
+                    {
+						DataFile += aresta.Entrada.Nametag + " " + aresta.Saida.Nametag + "\n";
+                    }
+                }
+                else
+                {
+					//grafo não dirigido
+					DataFile += "*Edges\n";
+					//remove arestas repetidas
+					
+					for(int  i=0; i<ListadeArestas.Count(); i++)
+					//foreach (var aresta in Aux)
+                    {
+						Aresta aresta = ListadeArestas[i];
+						Aresta a = aresta.ArestaAoContrario();
+						Aresta removivel = ListadeArestas.Find(x => x.Entrada == a.Entrada && x.Saida == a.Saida);
+
+						if (removivel!=null)
+                        {
+							ListadeArestas.Remove(removivel);
+                        }
+                    }
+					foreach (var aresta in ListadeArestas)
+					{
+						DataFile += aresta.Entrada.Nametag + " " + aresta.Saida.Nametag + "\n";
+					}
+				}
+				sw.WriteLine(DataFile);
+				sw.Close();
+			}
+
+			//Leitura dos dados
+			using (StreamReader sr = File.OpenText(filePath))
+			{
+				string s;
+				while ((s = sr.ReadLine()) != null)
+				{
+					Console.WriteLine(s);
+				}
+			}
 		}
 	}
 }

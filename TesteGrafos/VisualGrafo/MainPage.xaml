@@ -82,15 +82,15 @@
             <TextBlock Text="Número de arestas: " FontSize="20" Canvas.Left="30" Canvas.Top="253"/>
 
             <Border BorderBrush="Black" BorderThickness="2" Width="478" Canvas.Left="280" Canvas.Top="167">
-                <TextBlock x:Name="ContComp" Text="Temp" FontSize="20"/>
+                <TextBlock x:Name="ContComp" Text="" FontSize="20"/>
             </Border>
 
             <Border BorderBrush="Black" BorderThickness="2" Width="478" Canvas.Left="280" Canvas.Top="253">
-                <TextBlock x:Name="ContArestas" Text="Temp" FontSize="20"/>
+                <TextBlock x:Name="ContArestas" Text="" FontSize="20"/>
             </Border>
 
             <Border BorderBrush="Black" BorderThickness="2" Width="478" Canvas.Left="280" Canvas.Top="339">
-                <TextBlock x:Name="ContVertices" Text="Temp" FontSize="20"/>
+                <TextBlock x:Name="ContVertices" Text="" FontSize="20"/>
             </Border>
 
             <Button Content="Exibir" FontSize="20" x:Name="ExibirInformacoes" Background="DimGray" Foreground="White" Canvas.Left="30" Canvas.Top="436" Height="54" Width="139" BorderThickness="2" BorderBrush="DarkGray"/>
@@ -100,9 +100,9 @@
         <Canvas x:Name="BlocoCaminhoMinimo" Opacity="0" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
             <Button Content="Encontrar Caminho" FontSize="20" x:Name="EncontrarCaminho" Background="DimGray" Foreground="White" Canvas.Left="44" Canvas.Top="304" Height="54" Width="139" BorderThickness="2" BorderBrush="DarkGray"/>
             <TextBlock Text="Vertice origem: " FontSize="20" Canvas.Left="44" Canvas.Top="101"/>
-            <TextBlock Text="Vertice saida: " FontSize="20" Canvas.Left="44" Canvas.Top="182"/>
+            <TextBlock Text="Vertice destino: " FontSize="20" Canvas.Left="44" Canvas.Top="182"/>
             <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="VerticeOrigem" Height="36" Width="219" Canvas.Left="208" Canvas.Top="101" />
-            <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="VerticeSaida" Height="36" Width="219" Canvas.Left="208" Canvas.Top="182" />
+            <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="VerticeDestino" Height="36" Width="219" Canvas.Left="208" Canvas.Top="182" />
 
             <Border BorderBrush="Black" BorderThickness="4" Width="468" Canvas.Left="511" Canvas.Top="101" Height="257">
                 <TextBlock x:Name="JanelaCaminho" Width="468" Height="257" FontSize="40" FontWeight="Bold"/>

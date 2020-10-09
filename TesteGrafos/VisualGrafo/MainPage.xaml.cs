@@ -29,7 +29,7 @@ namespace VisualGrafo
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        
         private Grafo grafoCriado;
         private int vertices = 0;
         private int arestas = 0;
@@ -128,6 +128,7 @@ namespace VisualGrafo
                 RadioNaoDirigido.IsHitTestVisible = false;
             }
         }
+
         private void Btn_CriarAresta(object sender, RoutedEventArgs e) 
         {
             int numDefinido1, numDefinido2;
@@ -206,6 +207,7 @@ namespace VisualGrafo
                 Mensagem("É necessário preencher todos os campos para inserir a aresta.", "ERRO: Campos vazios");
             }
         }
+
         private void Radio_ChangeValue(object sender, RoutedEventArgs e) 
         {
             if (RadioDirigido.IsChecked.Equals(true)) 
@@ -217,6 +219,7 @@ namespace VisualGrafo
                 IsDirigido = false;
             }
         }
+
         private void Btn_ClearGrafo(object sender, RoutedEventArgs e) 
         {
             grafoCriado.Conteudo.Clear();
@@ -229,13 +232,15 @@ namespace VisualGrafo
             arestas = 0;
             contadorComponentes = 0;
         }
+
         private void Btn_ExibirTutorialCriar(object sender, RoutedEventArgs e) 
         {
             TutorialCriarGrafo.IsOpen = true;
         }
+
         private void Btn_GravarGrafo(object sender, RoutedEventArgs e) 
         {
-            GravarTxt();
+            grafoCriado.GravarTxt(IsDirigido);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -266,50 +271,61 @@ namespace VisualGrafo
             //Cria a matriz de distancias entre os vertices
             grafoCriado.CreateDM(vertices);
 
-            //Checa se o campo esta vazio
-            if (VerticeOrigem.Text != "" && VerticeSaida.Text != "") 
+            //Checa se o campo esta vazio  
+            if (VerticeOrigem.Text != "" && VerticeDestino.Text != "") 
             {
                 int numDefinido1 = int.Parse(VerticeOrigem.Text);
-                int numDefinido2 = int.Parse(VerticeSaida.Text);
+                int numDefinido2 = int.Parse(VerticeDestino.Text);
 
                 //Checa se são valores validos
                 if (numDefinido1 > 0 && numDefinido2 > 0 && numDefinido1 - 1 < vertices && numDefinido2 - 1 < vertices) 
                 {
                     //Joga o numero de arestas que são passadas no processo do caminho
-                    //TODO exibir o caminho em si
 
-                    string caminho = " " + numDefinido2.ToString() + " ";
+                    List<int> vetorCaminho = new List<int>();
+                    vetorCaminho.Add(numDefinido2);
+                    string caminho = " " + numDefinido1.ToString() + " ";
                     int aux = numDefinido2 - 1;
-
-                    while (!caminho.Contains(" " + numDefinido1.ToString() + " ")) 
+                    
+                    //Calculo do caminho minimo armazenando valores em VetorCaminho
+                    while(!vetorCaminho.Contains(numDefinido1))
                     {
-                        caminho += "- " + (grafoCriado.distanceMatrix[numDefinido1 - 1][aux] + 1).ToString() + " ";
+                        vetorCaminho.Add(grafoCriado.distanceMatrix[numDefinido1 - 1][aux] + 1);
                         aux = grafoCriado.distanceMatrix[numDefinido1 - 1][aux];
                         if (aux == -1) break;
                     }
 
-                    if(aux == -1) JanelaCaminho.Text = "INFINITO";
-                    else JanelaCaminho.Text = caminho;
-                    
-                    
+                    //se não existir caminho, caminho é infinito
+                    if (aux == -1) JanelaCaminho.Text = "INFINITO";
+                    //inverte o vetor e cria string
+                    else
+                    {
+                        vetorCaminho.Reverse();
+                        foreach (var i in vetorCaminho)
+                        {
+                            if(!i.Equals(numDefinido1))
+                                caminho += "- " + i.ToString() + " ";
+                        }
+                        JanelaCaminho.Text = caminho;
+                    }
                 }
                 else Mensagem("Preencha um vertice valido para realizar a busca.", "ERRO: Vertice invalido");
             }
             else Mensagem("Preencha ambos os campos para realizar a busca.", "ERRO: Campo(s) vazio(s)");
-
         }
-
         //////////////////////////////////////////////////////////////////////////////////////////
 
         private void TextBox_OnBeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
         {
             args.Cancel = args.NewText.Any(c => !char.IsDigit(c));
         }
+        
         private async void Mensagem(string Mensagem, string Titulo)
         {
             var dialog = new MessageDialog(Mensagem, Titulo);
             var result = await dialog.ShowAsync();
         }
+
         private bool ChequeLigacoes(Vertice v, int saida) 
         {
             foreach(Aresta a in v.Adjacencia) 
@@ -321,6 +337,7 @@ namespace VisualGrafo
             }
             return true;
         }
+        
         private void EsconderMenus() 
         {
             BlocoCriarGrafo.IsHitTestVisible = false;
@@ -332,6 +349,8 @@ namespace VisualGrafo
             BlocoCaminhoMinimo.IsHitTestVisible = false;
             BlocoCaminhoMinimo.Opacity = 0;
         }
+        
+        
         private void ContadorComponentes() 
         {
             foreach(Vertice v in grafoCriado.Conteudo) 
@@ -343,6 +362,7 @@ namespace VisualGrafo
                 }
             }
         }
+        
         private void ChequeNoGrafo(Vertice v) 
         {
             v.IsChecked = true;
@@ -354,6 +374,8 @@ namespace VisualGrafo
                 }
             }
         }
+        
+        
         private void ResetarCheque() 
         {
             foreach(Vertice v in grafoCriado.Conteudo) 
@@ -363,37 +385,5 @@ namespace VisualGrafo
         }
 
         //TODO colocar o conteudo do grafo
-        private void GravarTxt()
-        {
-            //criando arquivo
-            string filePath = localFolder.Path + "\\" + "teste.txt";
-
-            //Cria o arquivo se ele não existir
-            StreamWriter sw;
-            if (!File.Exists(filePath))
-            {
-                sw = File.CreateText(filePath);
-                sw.Close();
-            }
-
-            //Não grava-se o \n no arquivo
-            //Using isola uma declaração que nao funcionara fora dele
-            //Escreve no arquivo pulando linha
-            using (sw = File.CreateText(filePath))
-            {
-                sw.WriteLine("TEXTO");
-                sw.Close();
-            }
-
-            //Leitura dos dados
-            using (StreamReader sr = File.OpenText(filePath))
-            {
-                string s;
-                while ((s = sr.ReadLine()) != null)
-                {
-                    Console.WriteLine(s);
-                }
-            }
-        }
     }
 }
