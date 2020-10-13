@@ -56,6 +56,9 @@ namespace VisualGrafo
         
         //Conteudo do canvas do menu de seleção
 
+        /// <summary>
+        /// Botão para ir para a pagina escolhida no combobox
+        /// </summary>
         private void Btn_SelecionarPagina(object sender, RoutedEventArgs e)
         {
             if (Selecao.SelectionBoxItem.ToString() == "Criar grafo")
@@ -91,37 +94,25 @@ namespace VisualGrafo
 
         //Conteudo para o canvas de construir grafo
 
+        /// <summary>
+        /// Botão para criar um vertice
+        /// </summary>
         private void Btn_DefinicaoVertices(object sender, RoutedEventArgs e)
         {
             //Primeiro checa se o campo ficou vazio
-            if(NumVertices.Text != "" )
+            if(NumVertices.Text.Trim().Length > 0 )
             {
                 //Define o numero de vertices com base no campo
                 vertices = int.Parse(NumVertices.Text);
                 //Desbloqueia a interação com a insercao de arestas
                 MenuArestas.IsHitTestVisible = true;
 
+                //Instancia o grafo
                 grafoCriado = new Grafo(vertices);
+                //Define ele como dirigido ou não
                 grafoCriado.IsDirigido = IsDirigido;
 
-                //Inicialisa a matriz de adjacencia
-                grafoCriado.MatrizAdjacencia = new int[vertices, vertices];
-                grafoCriado.ListaAdjacencia = new int[vertices][];
-
-                //Zera todos os campos da matriz e inicializa os vertices dentro do grafo
-                for (int i = 0; i < vertices; i++)
-                {
-                    for (int j = 0; j < vertices; j++)
-                    {
-                        grafoCriado.MatrizAdjacencia[i, j] = 0;
-                    }
-
-                    Vertice v = new Vertice();
-                    v.Nametag = i + 1;
-                    v.Adjacencia = new List<Aresta>();
-
-                    grafoCriado.Conteudo.Add(v);
-                }
+                //Bloqueia a interação com o botão e os radio buttons
                 Mensagem("O grafo foi criado com " + vertices +" vertices.", "GRAFO CRIADO");
                 DefinicaoVertices.IsHitTestVisible = false;
                 RadioDirigido.IsHitTestVisible = false;
@@ -129,6 +120,9 @@ namespace VisualGrafo
             }
         }
 
+        /// <summary>
+        /// Botão para realizar a criação de uma aresta
+        /// </summary>
         private void Btn_CriarAresta(object sender, RoutedEventArgs e) 
         {
             int numDefinido1, numDefinido2;
@@ -137,36 +131,17 @@ namespace VisualGrafo
             {
                 numDefinido1 = int.Parse(BoxVertice1.Text) - 1;
                 numDefinido2 = int.Parse(BoxVertice2.Text) - 1;
+                int peso = int.Parse(Peso.Text);
+
                 //Depois checa se eles são validos (Valor menor que numero de vertices e maior que 0)
                 if (numDefinido1 < vertices && numDefinido2 < vertices) 
                 {
-                    if(numDefinido1 >= 0 && numDefinido2 >= 0) 
+                    if(numDefinido1 >= 0 && numDefinido2 >= 0 && peso >= 0) 
                     {
                         //Depois checa se a ligação ja exite
-                        if (ChequeLigacoes(grafoCriado.Conteudo.ElementAt(numDefinido1) ,numDefinido2 + 1)) 
+                        if (grafoCriado.ChequeLigacoes(grafoCriado.Conteudo.ElementAt(numDefinido1) ,numDefinido2 + 1)) 
                         {
-                            //Cria a aresta que liga os dois vertices
-                            Aresta Ligacao = new Aresta();
-                            Ligacao.Entrada = grafoCriado.Conteudo.ElementAt(numDefinido1);
-                            Ligacao.Saida = grafoCriado.Conteudo.ElementAt(numDefinido2);
-
-                            //Define na matriz que há uma ligacao
-                            grafoCriado.MatrizAdjacencia[numDefinido1, numDefinido2] = 1;
-
-                            //Adiciona a ligacao no primeiro elemento
-                            grafoCriado.Conteudo.ElementAt(numDefinido1).Adjacencia.Add(Ligacao);
-
-                            //Caso nao for dirigido ele cria uma outra ligacao para ser jogada no segundo vertice
-                            if (!grafoCriado.IsDirigido)
-                            {
-                                Aresta a = new Aresta();
-                                a.Entrada = grafoCriado.Conteudo.ElementAt(numDefinido2);
-                                a.Saida = grafoCriado.Conteudo.ElementAt(numDefinido1);
-
-                                grafoCriado.MatrizAdjacencia[numDefinido2, numDefinido1] = 1;
-
-                                grafoCriado.Conteudo.ElementAt(numDefinido2).Adjacencia.Add(a);
-                            }
+                            grafoCriado.CriarLigacao(numDefinido1, numDefinido2, peso);
 
                             //Cria um textblock pra ser exibido a ligacao no stackpanel
                             TextBlock NovaAresta = new TextBlock();
@@ -184,8 +159,6 @@ namespace VisualGrafo
 
                             //Adiciona no stackpanel
                             ArestasAdicionadas.Children.Add(NovaAresta);
-
-                            grafoCriado.addEdgeAtEnd(Ligacao.Entrada.Nametag - 1, Ligacao.Saida.Nametag, 1);
                         }
                         else
                         {
@@ -208,6 +181,9 @@ namespace VisualGrafo
             }
         }
 
+        /// <summary>
+        /// Tratamento para quando transitar de um radio button para outro
+        /// </summary>
         private void Radio_ChangeValue(object sender, RoutedEventArgs e) 
         {
             if (RadioDirigido.IsChecked.Equals(true)) 
@@ -220,6 +196,9 @@ namespace VisualGrafo
             }
         }
 
+        /// <summary>
+        /// Botâo para apagar o grafo
+        /// </summary>
         private void Btn_ClearGrafo(object sender, RoutedEventArgs e) 
         {
             grafoCriado.Conteudo.Clear();
@@ -233,11 +212,17 @@ namespace VisualGrafo
             contadorComponentes = 0;
         }
 
+        /// <summary>
+        /// Botâo para exibir a janela de tutorial
+        /// </summary>
         private void Btn_ExibirTutorialCriar(object sender, RoutedEventArgs e) 
         {
             TutorialCriarGrafo.IsOpen = true;
         }
 
+        /// <summary>
+        /// Botâo para salvar o grafo em um txt no padrão pajek
+        /// </summary>
         private void Btn_GravarGrafo(object sender, RoutedEventArgs e) 
         {
             grafoCriado.GravarTxt(IsDirigido);
@@ -247,14 +232,17 @@ namespace VisualGrafo
 
         //Conteudo para o canvas das informações do grafo
 
+        /// <summary>
+        /// Botão para exibir o numero de componentes, vertices e arestas
+        /// </summary>
         private void Btn_ExibirInformacoes(object sender, RoutedEventArgs e) 
         {
-            ContadorComponentes();
+            contadorComponentes = grafoCriado.ContadorComponentes();
             ContComp.Text = contadorComponentes.ToString();
             ContComp.HorizontalAlignment = HorizontalAlignment.Center;
 
             contadorComponentes = 0;
-            ResetarCheque();
+            grafoCriado.ResetarCheque();
 
             ContArestas.Text = arestas.ToString();
             ContArestas.HorizontalAlignment = HorizontalAlignment.Center;
@@ -266,6 +254,9 @@ namespace VisualGrafo
 
         //Conteudo para o canvas de exbicao de caminho minimo
 
+        /// <summary>
+        /// Botão para exibir o caminho minimo entre dois vertices
+        /// </summary>
         private void Btn_EncontrarCaminho(object sender, RoutedEventArgs e) 
         {
             //Cria a matriz de distancias entre os vertices
@@ -313,31 +304,29 @@ namespace VisualGrafo
             }
             else Mensagem("Preencha ambos os campos para realizar a busca.", "ERRO: Campo(s) vazio(s)");
         }
+
         //////////////////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Metodo para impedir a digitação de letras e simbolos nos TextBoxs
+        /// </summary>
         private void TextBox_OnBeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
         {
             args.Cancel = args.NewText.Any(c => !char.IsDigit(c));
         }
         
+        /// <summary>
+        /// Metodo para exibir mensagens na tela
+        /// </summary>
         private async void Mensagem(string Mensagem, string Titulo)
         {
             var dialog = new MessageDialog(Mensagem, Titulo);
             var result = await dialog.ShowAsync();
         }
-
-        private bool ChequeLigacoes(Vertice v, int saida) 
-        {
-            foreach(Aresta a in v.Adjacencia) 
-            {
-                if(a.Saida.Nametag == saida) 
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
         
+        /// <summary>
+        /// Metodo para ocultar os canvas dos menus
+        /// </summary>
         private void EsconderMenus() 
         {
             BlocoCriarGrafo.IsHitTestVisible = false;
@@ -349,41 +338,6 @@ namespace VisualGrafo
             BlocoCaminhoMinimo.IsHitTestVisible = false;
             BlocoCaminhoMinimo.Opacity = 0;
         }
-        
-        
-        private void ContadorComponentes() 
-        {
-            foreach(Vertice v in grafoCriado.Conteudo) 
-            {
-                if (!v.IsChecked) 
-                {
-                    ChequeNoGrafo(v);
-                    contadorComponentes += 1;
-                }
-            }
-        }
-        
-        private void ChequeNoGrafo(Vertice v) 
-        {
-            v.IsChecked = true;
-            foreach(Aresta a in v.Adjacencia) 
-            {
-                if (!a.Saida.IsChecked) 
-                {
-                    ChequeNoGrafo(a.Saida);
-                }
-            }
-        }
-        
-        
-        private void ResetarCheque() 
-        {
-            foreach(Vertice v in grafoCriado.Conteudo) 
-            {
-                v.IsChecked = false;
-            }
-        }
 
-        //TODO colocar o conteudo do grafo
     }
 }

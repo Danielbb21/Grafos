@@ -10,7 +10,7 @@ namespace TesteGrafos
     {
         public Vertice Entrada { get; set; }
         public Vertice Saida { get; set; }
-        //public int Peso { get; set; }
+        public int Peso { get; set; }
         
         //inverte arestas 
         public Aresta ArestaAoContrario()
@@ -18,7 +18,7 @@ namespace TesteGrafos
             Aresta a = new Aresta();
             a.Entrada = this.Saida;
             a.Saida = this.Entrada;
-            //a.Peso = this.Peso;
+            a.Peso = this.Peso;
             return a;
         }
     }

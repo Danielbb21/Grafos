@@ -14,7 +14,6 @@ namespace TesteGrafos
         public List<Vertice> Conteudo { get; set; }
         public bool IsDirigido { get; set; }
 		public int[][] distanceMatrix { get; set; }
-		public int[][] ListaAdjacencia { get; set; }
 
 		public LinkedList<Tuple<int, int>>[] adjacencyList;
 
@@ -23,12 +22,64 @@ namespace TesteGrafos
             this.IsDirigido = false;
             this.Conteudo = new List<Vertice>();
 
+			//Inicialisa a matriz de adjacencia
+			this.MatrizAdjacencia = new int[vertices, vertices];
+
 			adjacencyList = new LinkedList<Tuple<int, int>>[vertices];
 
 			for (int i = 0; i < adjacencyList.Length; ++i)
 			{
 				adjacencyList[i] = new LinkedList<Tuple<int, int>>();
 			}
+
+			IniciarMatriz(vertices);
+		}
+
+		public void IniciarMatriz(int vertices)
+		{
+			//Zera todos os campos da matriz e inicializa os vertices dentro do grafo
+			for (int i = 0; i < vertices; i++)
+			{
+				for (int j = 0; j < vertices; j++)
+				{
+					this.MatrizAdjacencia[i, j] = 0;
+				}
+
+				Vertice v = new Vertice();
+				v.Nametag = i + 1;
+				v.Adjacencia = new List<Aresta>();
+
+				this.Conteudo.Add(v);
+			}
+		}
+
+		public void CriarLigacao(int numDefinido1, int numDefinido2, int peso) 
+		{
+			//Cria a aresta que liga os dois vertices
+			Aresta Ligacao = new Aresta();
+			Ligacao.Entrada = this.Conteudo.ElementAt(numDefinido1);
+			Ligacao.Saida = this.Conteudo.ElementAt(numDefinido2);
+			Ligacao.Peso = peso;
+
+			//Define na matriz que há uma ligacao
+			this.MatrizAdjacencia[numDefinido1, numDefinido2] = Ligacao.Peso;
+
+			//Adiciona a ligacao no primeiro elemento
+			this.Conteudo.ElementAt(numDefinido1).Adjacencia.Add(Ligacao);
+
+			//Caso nao for dirigido ele cria uma outra ligacao para ser jogada no segundo vertice
+			if (!this.IsDirigido)
+			{
+				Aresta a = new Aresta();
+				a.Entrada = this.Conteudo.ElementAt(numDefinido2);
+				a.Saida = this.Conteudo.ElementAt(numDefinido1);
+
+				this.MatrizAdjacencia[numDefinido2, numDefinido1] = Ligacao.Peso;
+
+				this.Conteudo.ElementAt(numDefinido2).Adjacencia.Add(a);
+			}
+
+			this.addEdgeAtEnd(Ligacao.Entrada.Nametag - 1, Ligacao.Saida.Nametag, 1);
 		}
 
 		// Appends a new Edge to the linked list
@@ -46,6 +97,52 @@ namespace TesteGrafos
 							   = new LinkedList<Tuple<int, int>>(adjacencyList[index]);
 
 				return edgeList;
+			}
+		}
+
+		public void ResetarCheque()
+		{
+			foreach (Vertice v in this.Conteudo)
+			{
+				v.IsChecked = false;
+			}
+		}
+
+		public int ContadorComponentes()
+		{
+			int contadorComponentes = 0;
+			foreach (Vertice v in this.Conteudo)
+			{
+				if (!v.IsChecked)
+				{
+					ChequeNoGrafo(v);
+					contadorComponentes += 1;
+				}
+			}
+			return contadorComponentes;
+		}
+
+		public bool ChequeLigacoes(Vertice v, int saida)
+		{
+			foreach (Aresta a in v.Adjacencia)
+			{
+				if (a.Saida.Nametag == saida)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+		private void ChequeNoGrafo(Vertice v)
+		{
+			v.IsChecked = true;
+			foreach (Aresta a in v.Adjacencia)
+			{
+				if (!a.Saida.IsChecked)
+				{
+					ChequeNoGrafo(a.Saida);
+				}
 			}
 		}
 
@@ -158,7 +255,7 @@ namespace TesteGrafos
 					DataFile += "*Arcs\n";
                     foreach (var aresta in ListadeArestas)
                     {
-						DataFile += aresta.Entrada.Nametag + " " + aresta.Saida.Nametag + "\n";
+						DataFile += aresta.Entrada.Nametag + " " + aresta.Saida.Nametag + " " + aresta.Peso + "\n";
                     }
                 }
                 else
@@ -168,7 +265,6 @@ namespace TesteGrafos
 					//remove arestas repetidas
 					
 					for(int  i=0; i<ListadeArestas.Count(); i++)
-					//foreach (var aresta in Aux)
                     {
 						Aresta aresta = ListadeArestas[i];
 						Aresta a = aresta.ArestaAoContrario();
@@ -181,7 +277,7 @@ namespace TesteGrafos
                     }
 					foreach (var aresta in ListadeArestas)
 					{
-						DataFile += aresta.Entrada.Nametag + " " + aresta.Saida.Nametag + "\n";
+						DataFile += aresta.Entrada.Nametag + " " + aresta.Saida.Nametag + " " + aresta.Peso + "\n";
 					}
 				}
 				sw.WriteLine(DataFile);

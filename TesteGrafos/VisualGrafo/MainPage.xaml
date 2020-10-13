@@ -23,8 +23,6 @@
                 <ComboBoxItem Foreground="Black" Content="Criar grafo" IsSelected="True"/>
                 <ComboBoxItem Content="Informações sobre o grafo"/>
                 <ComboBoxItem Content="Caminho mínimo entre vértices"/>
-                <ComboBoxItem Content="Distribuição espacial circular"/>
-                <ComboBoxItem Content="Distribuição espacial aleatória"/>
             </ComboBox>
         </Canvas>
 
@@ -46,9 +44,11 @@
             <TextBlock Text="Criar Aresta:" Canvas.Left="21" FontSize="20" Canvas.Top="272"/>
             <Canvas IsHitTestVisible="False" x:Name="MenuArestas" Height="291" Width="211" Canvas.Left="21" Canvas.Top="304">
                 <TextBlock Text="Vertice 1"/>
-                <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="BoxVertice1" Canvas.Top="24" Width="187"/>
+                <TextBlock Text="Peso" Canvas.Left="106" Canvas.Top="80"/>
+                <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="BoxVertice1" Canvas.Top="24" Width="94"/>
+                <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" Text="1" x:Name="Peso" Canvas.Top="104" Width="94" Canvas.Left="107"/>
                 <TextBlock Text="Vertice 2" Canvas.Top="80"/>
-                <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="BoxVertice2" Canvas.Top="104" Width="187"/>
+                <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="BoxVertice2" Canvas.Top="104" Width="94"/>
                 <Button x:Name="CriarAresta" Content="Criar" Background="DimGray" Foreground="White" Canvas.Top="176" Width="187"/>
 
 
@@ -65,7 +65,7 @@
                 <Canvas>
                     <Border Background="Gray" BorderBrush="Black" BorderThickness="3" Width="500" Height="200">
                         <Canvas>
-
+                            
                         </Canvas>
                     </Border>
 
