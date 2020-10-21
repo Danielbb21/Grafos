@@ -19,6 +19,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Shapes;
 
 // O modelo de item de Página em Branco está documentado em https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x416
 
@@ -87,6 +88,17 @@ namespace VisualGrafo
                 BlocoCaminhoMinimo.Opacity = 100;
 
                 Titulo.Text = "GRAFOS: CAMINHO MINIMO ENTRE VERTICES";
+            }
+            else if (Selecao.SelectionBoxItem.ToString() == "Distribuição Circular")
+            {
+                EsconderMenus();
+
+                BlocoDistribuicaoCircular.IsHitTestVisible = true;
+                BlocoDistribuicaoCircular.Opacity = 100;
+
+                Titulo.Text = "GRAFOS: DISTRIBUIÇÃO CIRCULAR";
+
+                DistribuirCircular();
             }
         }
 
@@ -307,6 +319,96 @@ namespace VisualGrafo
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
+        private void DistribuirCircular() 
+        {
+            double x1, y1, x2, y2;
+            int ordem = grafoCriado.Conteudo.Count();
+            
+            int i = 1;
+            foreach(var v in grafoCriado.Conteudo) 
+            {
+                v.Ellipse = new Ellipse();
+                v.Ellipse.Width = 200/ordem + 10;
+                v.Ellipse.Height = 200/ordem + 10;
+                v.DefinirPosicao(ordem, i);
+
+                v.Ellipse.Fill = new SolidColorBrush(Windows.UI.Colors.Black);
+                BlocoDistribuicaoCircular.Children.Add(v.Ellipse);
+
+                TextBlock text = new TextBlock();
+                text.Text = v.Nametag.ToString();
+                text.Foreground = new SolidColorBrush(Windows.UI.Colors.Yellow);
+                BlocoDistribuicaoCircular.Children.Add(text);
+
+                Canvas.SetLeft(v.Ellipse, v.X*250 + 500);
+                Canvas.SetTop(v.Ellipse, v.Y*250 + 280);
+
+                x1 = Canvas.GetLeft(v.Ellipse);
+                y1 = Canvas.GetTop(v.Ellipse);
+
+                Canvas.SetLeft(text, x1 + (200/ordem + 10)/2);
+                Canvas.SetTop(text, y1 + (200 / ordem + 10) / 2);
+
+                i++;
+            }
+
+
+
+            foreach(var v in grafoCriado.Conteudo) 
+            {
+                foreach(var a in v.Adjacencia) 
+                {
+                    x1 = Canvas.GetLeft(a.Entrada.Ellipse);
+                    y1 = Canvas.GetTop(a.Entrada.Ellipse);
+                    x2 = Canvas.GetLeft(a.Saida.Ellipse);
+                    y2 = Canvas.GetTop(a.Saida.Ellipse);
+    
+                    Line line = new Line();
+                    line.Stroke = new SolidColorBrush(Windows.UI.Colors.Red);
+
+                    if (grafoCriado.IsDirigido && a.Saida.Adjacencia.Where(m => m.Saida == a.Entrada).FirstOrDefault() != null) 
+                    {
+                        Line linha = new Line();
+                        linha.Stroke = new SolidColorBrush(Windows.UI.Colors.Red);
+
+                        line.X1 = x1 + (100 / ordem)/2 + 10;
+                        line.X2 = x2 + (100 / ordem) / 2 + 10;
+                        line.Y1 = y1 + (100 / ordem) / 2 + 10;
+                        line.Y2 = y2 + (100 / ordem) / 2 + 10;
+
+                        linha.X1 = x1 + 100 / ordem + 10;
+                        linha.X2 = x2 + 100 / ordem + 10;
+                        linha.Y1 = y1 + 100 / ordem + 10;
+                        linha.Y2 = y2 + 100 / ordem + 10;
+
+                        BlocoDistribuicaoCircular.Children.Add(linha);
+                        Canvas.SetZIndex(linha, -99);
+                    }
+                    else if(a.Entrada == a.Saida) 
+                    {
+                        //laço
+                    }
+                    else 
+                    {
+                        line.X1 = x1 + ((200 / ordem) + 10) / 2;
+                        line.X2 = x2 + ((200 / ordem) + 10) / 2;
+                        line.Y1 = y1 + ((200 / ordem) + 10) / 2;
+                        line.Y2 = y2 + ((200 / ordem) + 10) / 2;
+                    }
+
+                    //line.StrokeThickness = 4;
+
+                    BlocoDistribuicaoCircular.Children.Add(line);
+                    Canvas.SetZIndex(line, -99);
+
+                    //Canvas.SetLeft(line, Canvas.GetLeft(a.Entrada.Ellipse));
+                    //Canvas.SetTop(line, Canvas.GetTop(a.Entrada.Ellipse));
+                }
+            }
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Metodo para impedir a digitação de letras e simbolos nos TextBoxs
         /// </summary>
@@ -337,6 +439,10 @@ namespace VisualGrafo
 
             BlocoCaminhoMinimo.IsHitTestVisible = false;
             BlocoCaminhoMinimo.Opacity = 0;
+
+            BlocoDistribuicaoCircular.IsHitTestVisible = false;
+            BlocoDistribuicaoCircular.Opacity = 0;
+            BlocoDistribuicaoCircular.Children.Clear();
         }
 
     }

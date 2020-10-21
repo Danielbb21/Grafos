@@ -23,6 +23,7 @@
                 <ComboBoxItem Foreground="Black" Content="Criar grafo" IsSelected="True"/>
                 <ComboBoxItem Content="Informações sobre o grafo"/>
                 <ComboBoxItem Content="Caminho mínimo entre vértices"/>
+                <ComboBoxItem Content="Distribuição Circular"/>
             </ComboBox>
         </Canvas>
 
@@ -105,8 +106,12 @@
             <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="VerticeDestino" Height="36" Width="219" Canvas.Left="208" Canvas.Top="182" />
 
             <Border BorderBrush="Black" BorderThickness="4" Width="468" Canvas.Left="511" Canvas.Top="101" Height="257">
-                <TextBlock x:Name="JanelaCaminho" Width="468" Height="257" FontSize="40" FontWeight="Bold"/>
+                <TextBlock x:Name="JanelaCaminho" TextWrapping="WrapWholeWords" Width="468" Height="257" FontSize="40" FontWeight="Bold"/>
             </Border>
+        </Canvas>
+
+        <Canvas x:Name="BlocoDistribuicaoCircular" Opacity="1" IsHitTestVisible="True" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
+
         </Canvas>
 
     </Canvas>

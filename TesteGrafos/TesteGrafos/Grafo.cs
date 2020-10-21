@@ -245,7 +245,7 @@ namespace TesteGrafos
 				
 				foreach(Vertice v in Conteudo)
                 {
-					DataFile += v.Nametag + " " + v.Nametag + "\n";
+					DataFile += v.Nametag + " " + "\"" + v.Nametag + "\"" + "\n";
 					//guarda todas as arestas de todos os vertices
 					ListadeArestas.AddRange(v.Adjacencia);
                 }
