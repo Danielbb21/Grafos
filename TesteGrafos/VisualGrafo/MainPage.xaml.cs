@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -99,6 +98,17 @@ namespace VisualGrafo
                 Titulo.Text = "GRAFOS: DISTRIBUIÇÃO CIRCULAR";
 
                 DistribuirCircular();
+            }
+            else if (Selecao.SelectionBoxItem.ToString() == "Distribuição Aleatória")
+            {
+                EsconderMenus();
+
+                BlocoDistribuicaoAleatoria.IsHitTestVisible = true;
+                BlocoDistribuicaoAleatoria.Opacity = 100;
+
+                Titulo.Text = "GRAFOS: DISTRIBUIÇÃO ALEATÓRIA";
+
+                DistribuirAleatorio();
             }
         }
 
@@ -319,9 +329,11 @@ namespace VisualGrafo
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
+        // Distribuição aleatoria e circular
+
         private void DistribuirCircular() 
         {
-            double x1, y1, x2, y2;
+            double x1, y1;
             int ordem = grafoCriado.Conteudo.Count();
             
             int i = 1;
@@ -352,26 +364,54 @@ namespace VisualGrafo
                 i++;
             }
 
+            PegaArestas(ordem, BlocoDistribuicaoCircular);
+        }
 
+        private void DistribuirAleatorio() 
+        {
+            Random random = new Random();
+            int ordem = grafoCriado.Conteudo.Count();
 
             foreach(var v in grafoCriado.Conteudo) 
             {
-                foreach(var a in v.Adjacencia) 
+                v.Ellipse = new Ellipse();
+                v.Ellipse.Width = 200 / ordem + 10;
+                v.Ellipse.Height = 200 / ordem + 10;
+                v.Ellipse.Fill = new SolidColorBrush(Windows.UI.Colors.Black);
+
+                v.X = random.Next(0, 1021);
+                v.Y = random.Next(0, 607);
+
+                BlocoDistribuicaoAleatoria.Children.Add(v.Ellipse);
+
+                Canvas.SetLeft(v.Ellipse, v.X);
+                Canvas.SetTop(v.Ellipse, v.Y);
+            }
+
+            PegaArestas(ordem, BlocoDistribuicaoAleatoria);
+        }
+
+        public void PegaArestas(int ordem, Canvas bloco)
+        {
+            double x1, y1, x2, y2;
+            foreach (var v in grafoCriado.Conteudo)
+            {
+                foreach (var a in v.Adjacencia)
                 {
                     x1 = Canvas.GetLeft(a.Entrada.Ellipse);
                     y1 = Canvas.GetTop(a.Entrada.Ellipse);
                     x2 = Canvas.GetLeft(a.Saida.Ellipse);
                     y2 = Canvas.GetTop(a.Saida.Ellipse);
-    
+
                     Line line = new Line();
                     line.Stroke = new SolidColorBrush(Windows.UI.Colors.Red);
 
-                    if (grafoCriado.IsDirigido && a.Saida.Adjacencia.Where(m => m.Saida == a.Entrada).FirstOrDefault() != null) 
+                    if (grafoCriado.IsDirigido && a.Saida.Adjacencia.Where(m => m.Saida == a.Entrada).FirstOrDefault() != null)
                     {
                         Line linha = new Line();
                         linha.Stroke = new SolidColorBrush(Windows.UI.Colors.Red);
 
-                        line.X1 = x1 + (100 / ordem)/2 + 10;
+                        line.X1 = x1 + (100 / ordem) / 2 + 10;
                         line.X2 = x2 + (100 / ordem) / 2 + 10;
                         line.Y1 = y1 + (100 / ordem) / 2 + 10;
                         line.Y2 = y2 + (100 / ordem) / 2 + 10;
@@ -381,14 +421,22 @@ namespace VisualGrafo
                         linha.Y1 = y1 + 100 / ordem + 10;
                         linha.Y2 = y2 + 100 / ordem + 10;
 
-                        BlocoDistribuicaoCircular.Children.Add(linha);
+                        bloco.Children.Add(linha);
                         Canvas.SetZIndex(linha, -99);
                     }
-                    else if(a.Entrada == a.Saida) 
+                    else if (a.Entrada == a.Saida)
                     {
-                        //laço
+                        Ellipse laco = new Ellipse();
+                        laco.Stroke = new SolidColorBrush(Windows.UI.Colors.Red);
+                        laco.Width = 100 / ordem + 10;
+                        laco.Height = 100 / ordem + 10;
+
+                        bloco.Children.Add(laco);
+                        Canvas.SetLeft(laco, x1 + ((200 / ordem) + 10) / 2);
+                        Canvas.SetTop(laco, y1 + ((200 / ordem) + 10) / 2);
+                        Canvas.SetZIndex(laco, -99);
                     }
-                    else 
+                    else
                     {
                         line.X1 = x1 + ((200 / ordem) + 10) / 2;
                         line.X2 = x2 + ((200 / ordem) + 10) / 2;
@@ -396,13 +444,8 @@ namespace VisualGrafo
                         line.Y2 = y2 + ((200 / ordem) + 10) / 2;
                     }
 
-                    //line.StrokeThickness = 4;
-
-                    BlocoDistribuicaoCircular.Children.Add(line);
+                    bloco.Children.Add(line);
                     Canvas.SetZIndex(line, -99);
-
-                    //Canvas.SetLeft(line, Canvas.GetLeft(a.Entrada.Ellipse));
-                    //Canvas.SetTop(line, Canvas.GetTop(a.Entrada.Ellipse));
                 }
             }
         }
@@ -443,6 +486,10 @@ namespace VisualGrafo
             BlocoDistribuicaoCircular.IsHitTestVisible = false;
             BlocoDistribuicaoCircular.Opacity = 0;
             BlocoDistribuicaoCircular.Children.Clear();
+
+            BlocoDistribuicaoAleatoria.IsHitTestVisible = false;
+            BlocoDistribuicaoAleatoria.Opacity = 0;
+            BlocoDistribuicaoAleatoria.Children.Clear();
         }
 
     }

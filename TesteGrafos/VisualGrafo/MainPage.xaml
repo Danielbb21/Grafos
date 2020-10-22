@@ -24,6 +24,7 @@
                 <ComboBoxItem Content="Informações sobre o grafo"/>
                 <ComboBoxItem Content="Caminho mínimo entre vértices"/>
                 <ComboBoxItem Content="Distribuição Circular"/>
+                <ComboBoxItem Content="Distribuição Aleatória"/>
             </ComboBox>
         </Canvas>
 
@@ -110,7 +111,11 @@
             </Border>
         </Canvas>
 
-        <Canvas x:Name="BlocoDistribuicaoCircular" Opacity="1" IsHitTestVisible="True" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
+        <Canvas x:Name="BlocoDistribuicaoCircular" Opacity="0" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
+
+        </Canvas>
+
+        <Canvas x:Name="BlocoDistribuicaoAleatoria" Opacity="0" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
 
         </Canvas>
 
