@@ -17,6 +17,7 @@ namespace TesteGrafos
 
 		public LinkedList<Tuple<int, int>>[] adjacencyList;
 
+		//Construtor e inicializador de componentes
 		public Grafo(int vertices) 
         {
             this.IsDirigido = false;
@@ -35,6 +36,7 @@ namespace TesteGrafos
 			IniciarMatriz(vertices);
 		}
 
+		//Inicializa a matriz de adjacência
 		public void IniciarMatriz(int vertices)
 		{
 			//Zera todos os campos da matriz e inicializa os vertices dentro do grafo
@@ -53,6 +55,7 @@ namespace TesteGrafos
 			}
 		}
 
+		//Adiciona um vértice na matriz de acordo com o tipo de grafo (dirigido ou não dirigido)
 		public void CriarLigacao(int numDefinido1, int numDefinido2, int peso) 
 		{
 			//Cria a aresta que liga os dois vertices
@@ -100,6 +103,7 @@ namespace TesteGrafos
 			}
 		}
 
+		//Metodo para marcar todos os vertices como não checados após de uma busca
 		public void ResetarCheque()
 		{
 			foreach (Vertice v in this.Conteudo)
@@ -107,7 +111,8 @@ namespace TesteGrafos
 				v.IsChecked = false;
 			}
 		}
-
+		
+		//Metodo para contar os componentes dentro de um grafo a partir da busca de profundidade
 		public int ContadorComponentes()
 		{
 			int contadorComponentes = 0;
@@ -122,6 +127,7 @@ namespace TesteGrafos
 			return contadorComponentes;
 		}
 
+		//Confere a existência da aresta
 		public bool ChequeLigacoes(Vertice v, int saida)
 		{
 			foreach (Aresta a in v.Adjacencia)
@@ -134,6 +140,7 @@ namespace TesteGrafos
 			return true;
 		}
 
+		//Metodo recursivo para conferir todos os vertices dentro do grafo a partir da busca de profundidade
 		private void ChequeNoGrafo(Vertice v)
 		{
 			v.IsChecked = true;
@@ -146,6 +153,7 @@ namespace TesteGrafos
 			}
 		}
 
+		//Metodo para criar a matriz de distancia a partir do algoritmo de Dijkstra
 		public void CreateDM(int vertices)
 		{
 			distanceMatrix = new int[vertices][];
@@ -155,6 +163,7 @@ namespace TesteGrafos
 			}
 		}
 
+		//Metodo complementar do metodo Dijkstra para pegar o menor valor dentro da matriz de distancia
 		private int TakeMin(List<int> queue, int[] dist)
 		{
 			int lesser = 0;
@@ -172,12 +181,22 @@ namespace TesteGrafos
 			return lesser;
 		}
 
+		//Metodo para retornar o caminho minimo entre dois vertices
 		public int[] Dijkstra(int start, int vertices)
 		{
+			//Marca o maior valor inicial
 			int infinite = 9999;
+
+			//Inicia a lista de espera
 			List<int> queue = new List<int>();
+
+			//Inicia o vetor de predecessores
 			int[] pred = new int[vertices];
+
+			//Inicia o vetor das distancias
 			int[] dist = new int[vertices];
+
+			//Loop para marcar todos os pontos com a distancia infinite
 			for (int vertex = 0; vertex < pred.Length; vertex++)
 			{
 				pred[vertex] = -1;
@@ -185,11 +204,20 @@ namespace TesteGrafos
 					dist[vertex] = infinite;
 				queue.Add(vertex);
 			}
+
+			//Loop para encontrar a distancia entre todos os adjacentes de um vertice
 			while (queue.Count > 0)
 			{
+				//Pega o menor valor entre os elementos da matriz de distancia
 				int u = TakeMin(queue, dist);
+
+				//Remove o elemento da lista de espera
 				queue.Remove(u);
+
+				//Inicia o vetor de adjacentes de um vertice
 				int[] neighbors = ReturnNeighbors(u, vertices);
+
+				//Loop para checar todos os elementos dentro do vetor de adjacentes 
 				for (int v = 0; v < neighbors.Length; v++)
 				{
 					if (neighbors[v] >= 1)
@@ -208,6 +236,7 @@ namespace TesteGrafos
 			return pred;
 		}
 
+		//Retorna uma lista dos vertices adjacentes ao vertice vertex com base na matriz de adjacencia
 		private int[] ReturnNeighbors(int vertex, int vertices)
 		{
 			int[] neighbors = new int[vertices];
@@ -218,6 +247,7 @@ namespace TesteGrafos
 			return neighbors;
 		}
 
+		//Grava o grafo em Texto no formato pajek
 		public void GravarTxt(bool IsDirigido)
 		{
 			StorageFolder localFolder = ApplicationData.Current.LocalFolder;

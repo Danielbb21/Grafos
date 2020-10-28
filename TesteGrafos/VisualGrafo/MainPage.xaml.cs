@@ -10,6 +10,7 @@ using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Windows.UI.Input.Inking;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -36,6 +37,9 @@ namespace VisualGrafo
         private bool IsDirigido = false;
         private int contadorComponentes = 0;
 
+        /// <summary>
+        /// Definição das ações dos botões
+        /// </summary>
         public MainPage()
         {
             this.InitializeComponent();
@@ -128,6 +132,7 @@ namespace VisualGrafo
                 vertices = int.Parse(NumVertices.Text);
                 //Desbloqueia a interação com a insercao de arestas
                 MenuArestas.IsHitTestVisible = true;
+                CriarAresta.IsHitTestVisible = true;
 
                 //Instancia o grafo
                 grafoCriado = new Grafo(vertices);
@@ -165,22 +170,40 @@ namespace VisualGrafo
                         {
                             grafoCriado.CriarLigacao(numDefinido1, numDefinido2, peso);
 
-                            //Cria um textblock pra ser exibido a ligacao no stackpanel
-                            TextBlock NovaAresta = new TextBlock();
-                            NovaAresta.HorizontalAlignment = HorizontalAlignment.Center;
-                            NovaAresta.FontSize = 20;
-                            NovaAresta.Text = (numDefinido1 + 1) + "   -   " + (numDefinido2 + 1);
+                            //Cria um textblock pra ser exibido a ligacao no grid
+                            TextBlock VerticeEntrada = new TextBlock();
+                            VerticeEntrada.HorizontalAlignment = HorizontalAlignment.Center;
+                            VerticeEntrada.FontSize = 20;
+                            VerticeEntrada.Text = (numDefinido1 + 1).ToString();
+
+                            TextBlock VerticeSaida = new TextBlock();
+                            VerticeSaida.HorizontalAlignment = HorizontalAlignment.Center;
+                            VerticeSaida.FontSize = 20;
+                            VerticeSaida.Text = (numDefinido2 + 1).ToString();
+
+                            TextBlock PesoBlock = new TextBlock();
+                            PesoBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                            PesoBlock.FontSize = 20;
+                            PesoBlock.Text = Peso.Text;
 
                             arestas += 1;
 
-                            //Caso for maior que 8 ele removera a exibicao da ligacao mais antiga para caber a nova
-                            if (ArestasAdicionadas.Children.Count == 8)
-                            {
-                                ArestasAdicionadas.Children.RemoveAt(0);
-                            }
+                            MenuArestas.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
 
-                            //Adiciona no stackpanel
-                            ArestasAdicionadas.Children.Add(NovaAresta);
+                            MenuArestas.Children.Add(VerticeEntrada);
+                            MenuArestas.Children.Add(VerticeSaida);
+                            MenuArestas.Children.Add(PesoBlock);
+
+                            int row = MenuArestas.RowDefinitions.Count() - 1;
+
+                            Grid.SetColumn(VerticeEntrada, 0);
+                            Grid.SetColumn(VerticeSaida, 1);
+                            Grid.SetColumn(PesoBlock, 2);
+                            Grid.SetRow(VerticeEntrada, row);
+                            Grid.SetRow(VerticeSaida, row);
+                            Grid.SetRow(PesoBlock, row);
+
+                            MenuArestas.Height += 20;
                         }
                         else
                         {
@@ -223,15 +246,22 @@ namespace VisualGrafo
         /// </summary>
         private void Btn_ClearGrafo(object sender, RoutedEventArgs e) 
         {
-            grafoCriado.Conteudo.Clear();
-            ArestasAdicionadas.Children.Clear();
-            MenuArestas.IsHitTestVisible = false;
-            DefinicaoVertices.IsHitTestVisible = true;
-            RadioDirigido.IsHitTestVisible = true;
-            RadioNaoDirigido.IsHitTestVisible = true;
-            vertices = 0;
-            arestas = 0;
-            contadorComponentes = 0;
+            if(grafoCriado == null || grafoCriado.Conteudo.Count == 0) 
+            {
+                Mensagem("Grafo já foi apagado. Nada aconteceu.", "AVISO");
+            }
+            else 
+            {
+                grafoCriado.Conteudo.Clear();
+                MenuArestas.IsHitTestVisible = false;
+                CriarAresta.IsHitTestVisible = false;
+                DefinicaoVertices.IsHitTestVisible = true;
+                RadioDirigido.IsHitTestVisible = true;
+                RadioNaoDirigido.IsHitTestVisible = true;
+                vertices = 0;
+                arestas = 0;
+                contadorComponentes = 0;
+            }
         }
 
         /// <summary>
@@ -309,7 +339,7 @@ namespace VisualGrafo
                     }
 
                     //se não existir caminho, caminho é infinito
-                    if (aux == -1) JanelaCaminho.Text = "INFINITO";
+                    if (aux == -1) JanelaCaminho.Text = "NÃO HÁ CAMINHO";
                     //inverte o vetor e cria string
                     else
                     {
@@ -331,59 +361,90 @@ namespace VisualGrafo
 
         // Distribuição aleatoria e circular
 
+        /// <summary>
+        /// Metodo para exibir a rede de forma circular
+        /// </summary>
         private void DistribuirCircular() 
         {
+            //Armazenam os valores do dimensões do canvas 
             double x1, y1;
+
+            //Quantidade total de vertices
             int ordem = grafoCriado.Conteudo.Count();
             
+            //Contador
             int i = 1;
+
+            //Pra cada vertice é criado uma ellipse pra ser jogada no canvas
             foreach(var v in grafoCriado.Conteudo) 
             {
+                //Pra manter visivel as elipses a medida que for adicionando vertices
+                //é feito um calculo para definir o tamanho dependendo da ordem
                 v.Ellipse = new Ellipse();
                 v.Ellipse.Width = 200/ordem + 10;
                 v.Ellipse.Height = 200/ordem + 10;
+
+                //Calculo para definir sua posição x e y
                 v.DefinirPosicao(ordem, i);
 
+                //Estetica da ellipse
                 v.Ellipse.Fill = new SolidColorBrush(Windows.UI.Colors.Black);
+
+                //Adicionando a ellipse no canvas
                 BlocoDistribuicaoCircular.Children.Add(v.Ellipse);
 
+                //Textblock pra armazenar o valor do vertice
                 TextBlock text = new TextBlock();
                 text.Text = v.Nametag.ToString();
                 text.Foreground = new SolidColorBrush(Windows.UI.Colors.Yellow);
                 BlocoDistribuicaoCircular.Children.Add(text);
 
+                //Calculo para distanciar os vertices dentro da circunferencia criada a partir do x e y
                 Canvas.SetLeft(v.Ellipse, v.X*250 + 500);
                 Canvas.SetTop(v.Ellipse, v.Y*250 + 280);
 
+                //Posicionando o textblock em cima da ellipse
                 x1 = Canvas.GetLeft(v.Ellipse);
                 y1 = Canvas.GetTop(v.Ellipse);
-
                 Canvas.SetLeft(text, x1 + (200/ordem + 10)/2);
                 Canvas.SetTop(text, y1 + (200 / ordem + 10) / 2);
 
                 i++;
             }
 
+            //Definição de arestas
             PegaArestas(ordem, BlocoDistribuicaoCircular);
         }
 
+        /// <summary>
+        /// Realiza a distribuição aleatoria para exibir a rede
+        /// </summary>
         private void DistribuirAleatorio() 
         {
+            //Gera um elemento random para gerar os numeros aleatorios
             Random random = new Random();
-            int ordem = grafoCriado.Conteudo.Count();
 
+            //Numero de elementos dentro da string
+            int ordem = grafoCriado.Conteudo.Count();
+            
+            //Pra cada vertice no grafo é criado uma ellipse
             foreach(var v in grafoCriado.Conteudo) 
             {
+                //Pra manter visivel as elipses a medida que for adicionando vertices
+                //é feito um calculo para definir o tamanho dependendo da ordem
                 v.Ellipse = new Ellipse();
                 v.Ellipse.Width = 200 / ordem + 10;
                 v.Ellipse.Height = 200 / ordem + 10;
                 v.Ellipse.Fill = new SolidColorBrush(Windows.UI.Colors.Black);
 
+                //Definição dos numeros aleatorios dentro do escopo do canvas
                 v.X = random.Next(0, 1021);
                 v.Y = random.Next(0, 607);
 
+                //Adição da ellipse no canvas
                 BlocoDistribuicaoAleatoria.Children.Add(v.Ellipse);
 
+                //Denições de suas posições no canvas
                 Canvas.SetLeft(v.Ellipse, v.X);
                 Canvas.SetTop(v.Ellipse, v.Y);
             }
@@ -391,9 +452,15 @@ namespace VisualGrafo
             PegaArestas(ordem, BlocoDistribuicaoAleatoria);
         }
 
+        /// <summary>
+        /// Metodo para exbir as arestas no canvas
+        /// </summary>
         public void PegaArestas(int ordem, Canvas bloco)
         {
+            //Valores que armazenam a posicao do vertice dentro do canvas
             double x1, y1, x2, y2;
+
+            //Para cada vertice é feito um loop para exibir todas suas ligações no canvas
             foreach (var v in grafoCriado.Conteudo)
             {
                 foreach (var a in v.Adjacencia)
@@ -403,9 +470,13 @@ namespace VisualGrafo
                     x2 = Canvas.GetLeft(a.Saida.Ellipse);
                     y2 = Canvas.GetTop(a.Saida.Ellipse);
 
+                    //Criação da linha que representa a ligação
                     Line line = new Line();
                     line.Stroke = new SolidColorBrush(Windows.UI.Colors.Red);
 
+                    //Mudança de comportamento caso ele for dirido, não dirigido ou um laço
+
+                    //Caso ele for dirigido e possuir ligação paralela
                     if (grafoCriado.IsDirigido && a.Saida.Adjacencia.Where(m => m.Saida == a.Entrada).FirstOrDefault() != null)
                     {
                         Line linha = new Line();
@@ -424,7 +495,8 @@ namespace VisualGrafo
                         bloco.Children.Add(linha);
                         Canvas.SetZIndex(linha, -99);
                     }
-                    else if (a.Entrada == a.Saida)
+                    //Caso ele for um laço
+                    if (a.Entrada == a.Saida)
                     {
                         Ellipse laco = new Ellipse();
                         laco.Stroke = new SolidColorBrush(Windows.UI.Colors.Red);
@@ -436,6 +508,7 @@ namespace VisualGrafo
                         Canvas.SetTop(laco, y1 + ((200 / ordem) + 10) / 2);
                         Canvas.SetZIndex(laco, -99);
                     }
+                    //Caso ele for não dirigido ou for dirigido e não apresentar ligação dupla
                     else
                     {
                         line.X1 = x1 + ((200 / ordem) + 10) / 2;
@@ -444,6 +517,7 @@ namespace VisualGrafo
                         line.Y2 = y2 + ((200 / ordem) + 10) / 2;
                     }
 
+                    //Adiciona a aresta no canvas
                     bloco.Children.Add(line);
                     Canvas.SetZIndex(line, -99);
                 }

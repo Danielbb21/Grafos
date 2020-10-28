@@ -22,6 +22,7 @@ namespace TesteGrafos
             this.IsChecked = false;
         }
 
+        //Calculo para definir as posições dos vertices para uma circunferencia
         public void DefinirPosicao(int ordem, int posicao)
         {
             this.angulo = (2 * Math.PI / ordem * posicao);
