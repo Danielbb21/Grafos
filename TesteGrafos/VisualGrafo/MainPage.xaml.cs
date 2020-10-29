@@ -10,6 +10,7 @@ using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Input.Inking;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
@@ -92,7 +93,7 @@ namespace VisualGrafo
 
                 Titulo.Text = "GRAFOS: CAMINHO MINIMO ENTRE VERTICES";
             }
-            else if (Selecao.SelectionBoxItem.ToString() == "Distribuição Circular")
+            else if (Selecao.SelectionBoxItem.ToString() == "Distribuição Circular" && grafoCriado != null)
             {
                 EsconderMenus();
 
@@ -103,7 +104,7 @@ namespace VisualGrafo
 
                 DistribuirCircular();
             }
-            else if (Selecao.SelectionBoxItem.ToString() == "Distribuição Aleatória")
+            else if (Selecao.SelectionBoxItem.ToString() == "Distribuição Aleatória" && grafoCriado != null)
             {
                 EsconderMenus();
 
@@ -171,39 +172,57 @@ namespace VisualGrafo
                             grafoCriado.CriarLigacao(numDefinido1, numDefinido2, peso);
 
                             //Cria um textblock pra ser exibido a ligacao no grid
+                            Border b1 = new Border();
+                            b1.BorderBrush = new SolidColorBrush(Windows.UI.Colors.Black);
+                            b1.BorderThickness = new Thickness(1,0,1,1);
+
+                            Border b2 = new Border();
+                            b2.BorderBrush = new SolidColorBrush(Windows.UI.Colors.Black);
+                            b2.BorderThickness = new Thickness(0, 0, 1,1);
+
+                            Border b3 = new Border();
+                            b3.BorderBrush = new SolidColorBrush(Windows.UI.Colors.Black);
+                            b3.BorderThickness = new Thickness(0,0,1,1);
+
                             TextBlock VerticeEntrada = new TextBlock();
                             VerticeEntrada.HorizontalAlignment = HorizontalAlignment.Center;
                             VerticeEntrada.FontSize = 20;
                             VerticeEntrada.Text = (numDefinido1 + 1).ToString();
+                            b1.Child = VerticeEntrada;
 
                             TextBlock VerticeSaida = new TextBlock();
                             VerticeSaida.HorizontalAlignment = HorizontalAlignment.Center;
                             VerticeSaida.FontSize = 20;
                             VerticeSaida.Text = (numDefinido2 + 1).ToString();
+                            b2.Child = VerticeSaida;
 
                             TextBlock PesoBlock = new TextBlock();
                             PesoBlock.HorizontalAlignment = HorizontalAlignment.Center;
                             PesoBlock.FontSize = 20;
                             PesoBlock.Text = Peso.Text;
+                            b3.Child = PesoBlock;
 
                             arestas += 1;
 
                             MenuArestas.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
 
-                            MenuArestas.Children.Add(VerticeEntrada);
-                            MenuArestas.Children.Add(VerticeSaida);
-                            MenuArestas.Children.Add(PesoBlock);
+                            MenuArestas.Children.Add(b1);
+                            MenuArestas.Children.Add(b2);
+                            MenuArestas.Children.Add(b3);
 
                             int row = MenuArestas.RowDefinitions.Count() - 1;
 
-                            Grid.SetColumn(VerticeEntrada, 0);
-                            Grid.SetColumn(VerticeSaida, 1);
-                            Grid.SetColumn(PesoBlock, 2);
-                            Grid.SetRow(VerticeEntrada, row);
-                            Grid.SetRow(VerticeSaida, row);
-                            Grid.SetRow(PesoBlock, row);
+                            Grid.SetColumn(b1, 0);
+                            Grid.SetColumn(b2, 1);
+                            Grid.SetColumn(b3, 2);
+                            Grid.SetRow(b1, row);
+                            Grid.SetRow(b2, row);
+                            Grid.SetRow(b3, row);
 
                             MenuArestas.Height += 20;
+                            b1.Tapped += VerticeEntrada_Tapped;
+                            b2.Tapped += VerticeEntrada_Tapped;
+                            b3.Tapped += VerticeEntrada_Tapped;
                         }
                         else
                         {
@@ -224,6 +243,59 @@ namespace VisualGrafo
             {
                 Mensagem("É necessário preencher todos os campos para inserir a aresta.", "ERRO: Campos vazios");
             }
+        }
+
+        /// <summary>
+        /// Evento para excluir a aresta clicada no grid
+        /// </summary>
+        private void VerticeEntrada_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            //Define o linha o qual o elemento está
+            int row = Grid.GetRow((FrameworkElement)sender);
+            
+            //Define a posicao dos 3 elementos a serem excluidos com base na linha
+            int entrada = 3 * row;
+            int saida = entrada + 1;
+            int peso = saida + 1;
+
+            //Retira o elemento border que contem os textblocks
+            Border enBorder = (Border)MenuArestas.Children.ElementAt(entrada);
+            Border saBorder = (Border)MenuArestas.Children.ElementAt(saida);
+
+            //Retira os textblocks em si para retirar o nome do vertice de entrada e saida
+            TextBlock en = (TextBlock)enBorder.Child;
+            TextBlock sa = (TextBlock)saBorder.Child;
+
+            //Remove a ligacao entre o vertice entrada e o vertice saida
+            grafoCriado.Conteudo .Where(v => v.Nametag == int.Parse(en.Text)).FirstOrDefault()
+                                 .Adjacencia.RemoveAll(m => m.Saida.Nametag == int.Parse(sa.Text));
+
+            //Caso o grafo não for dirigido, é retirado a ligação de sua saida com ele
+            if (!grafoCriado.IsDirigido) 
+            {
+                grafoCriado.Conteudo.Where(v => v.Nametag == int.Parse(sa.Text)).FirstOrDefault()
+                                 .Adjacencia.RemoveAll(m => m.Saida.Nametag == int.Parse(en.Text));
+            }
+            
+            //Remove os textblocks da grid
+            MenuArestas.Children.RemoveAt(peso);
+            MenuArestas.Children.RemoveAt(saida);
+            MenuArestas.Children.RemoveAt(entrada);
+
+            //Diminui o numero de arestaas
+            arestas--;
+
+            //Diminui por um todos os elementos com as linhas maiores com a que foi excluido
+            foreach(FrameworkElement child in MenuArestas.Children) 
+            {
+                if (Grid.GetRow(child) > row) 
+                {
+                    Grid.SetRow(child, Grid.GetRow(child) - 1);
+                }
+            }
+
+            //Exlui a linha em si
+            MenuArestas.RowDefinitions.RemoveAt(row);
         }
 
         /// <summary>
@@ -261,6 +333,11 @@ namespace VisualGrafo
                 vertices = 0;
                 arestas = 0;
                 contadorComponentes = 0;
+
+                for(int i = MenuArestas.Children.Count() - 1; i >= 6; i--) 
+                {
+                    MenuArestas.Children.RemoveAt(i);
+                }
             }
         }
 

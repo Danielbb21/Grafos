@@ -28,7 +28,7 @@
             </ComboBox>
         </Canvas>
 
-        <Canvas x:Name="BlocoCriarGrafo" Opacity="10" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
+        <Canvas x:Name="BlocoCriarGrafo" Opacity="0" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
             <TextBlock Text="Número de Vértices:" Canvas.Left="21" FontSize="20" Canvas.Top="24"/>
             <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="NumVertices" Width="201" Canvas.Left="219" Canvas.Top="24"/>
             <Button Content="Ok" x:Name="DefinicaoVertices" Background="DimGray" Foreground="White" Canvas.Left="219" Canvas.Top="77" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
