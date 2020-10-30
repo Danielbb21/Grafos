@@ -250,52 +250,59 @@ namespace VisualGrafo
         /// </summary>
         private void VerticeEntrada_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            //Define o linha o qual o elemento está
-            int row = Grid.GetRow((FrameworkElement)sender);
-            
-            //Define a posicao dos 3 elementos a serem excluidos com base na linha
-            int entrada = 3 * row;
-            int saida = entrada + 1;
-            int peso = saida + 1;
-
-            //Retira o elemento border que contem os textblocks
-            Border enBorder = (Border)MenuArestas.Children.ElementAt(entrada);
-            Border saBorder = (Border)MenuArestas.Children.ElementAt(saida);
-
-            //Retira os textblocks em si para retirar o nome do vertice de entrada e saida
-            TextBlock en = (TextBlock)enBorder.Child;
-            TextBlock sa = (TextBlock)saBorder.Child;
-
-            //Remove a ligacao entre o vertice entrada e o vertice saida
-            grafoCriado.Conteudo .Where(v => v.Nametag == int.Parse(en.Text)).FirstOrDefault()
-                                 .Adjacencia.RemoveAll(m => m.Saida.Nametag == int.Parse(sa.Text));
-
-            //Caso o grafo não for dirigido, é retirado a ligação de sua saida com ele
-            if (!grafoCriado.IsDirigido) 
+            try 
             {
-                grafoCriado.Conteudo.Where(v => v.Nametag == int.Parse(sa.Text)).FirstOrDefault()
-                                 .Adjacencia.RemoveAll(m => m.Saida.Nametag == int.Parse(en.Text));
-            }
-            
-            //Remove os textblocks da grid
-            MenuArestas.Children.RemoveAt(peso);
-            MenuArestas.Children.RemoveAt(saida);
-            MenuArestas.Children.RemoveAt(entrada);
+                //Define o linha o qual o elemento está
+                int row = Grid.GetRow((FrameworkElement)sender);
 
-            //Diminui o numero de arestaas
-            arestas--;
+                //Define a posicao dos 3 elementos a serem excluidos com base na linha
+                int entrada = 3 * row;
+                int saida = entrada + 1;
+                int peso = saida + 1;
 
-            //Diminui por um todos os elementos com as linhas maiores com a que foi excluido
-            foreach(FrameworkElement child in MenuArestas.Children) 
-            {
-                if (Grid.GetRow(child) > row) 
+                //Retira o elemento border que contem os textblocks
+                Border enBorder = (Border)MenuArestas.Children.ElementAt(entrada);
+                Border saBorder = (Border)MenuArestas.Children.ElementAt(saida);
+
+                //Retira os textblocks em si para retirar o nome do vertice de entrada e saida
+                TextBlock en = (TextBlock)enBorder.Child;
+                TextBlock sa = (TextBlock)saBorder.Child;
+
+                //Remove a ligacao entre o vertice entrada e o vertice saida
+                grafoCriado.Conteudo.Where(v => v.Nametag == int.Parse(en.Text)).FirstOrDefault()
+                                     .Adjacencia.RemoveAll(m => m.Saida.Nametag == int.Parse(sa.Text));
+
+                //Caso o grafo não for dirigido, é retirado a ligação de sua saida com ele
+                if (!grafoCriado.IsDirigido)
                 {
-                    Grid.SetRow(child, Grid.GetRow(child) - 1);
+                    grafoCriado.Conteudo.Where(v => v.Nametag == int.Parse(sa.Text)).FirstOrDefault()
+                                     .Adjacencia.RemoveAll(m => m.Saida.Nametag == int.Parse(en.Text));
                 }
-            }
 
-            //Exlui a linha em si
-            MenuArestas.RowDefinitions.RemoveAt(row);
+                //Remove os textblocks da grid
+                MenuArestas.Children.RemoveAt(peso);
+                MenuArestas.Children.RemoveAt(saida);
+                MenuArestas.Children.RemoveAt(entrada);
+
+                //Diminui o numero de arestaas
+                arestas--;
+
+                //Diminui por um todos os elementos com as linhas maiores com a que foi excluido
+                foreach (FrameworkElement child in MenuArestas.Children)
+                {
+                    if (Grid.GetRow(child) > row)
+                    {
+                        Grid.SetRow(child, Grid.GetRow(child) - 1);
+                    }
+                }
+
+                //Exlui a linha em si
+                MenuArestas.RowDefinitions.RemoveAt(row);
+            }
+            catch 
+            {
+                Mensagem("erro vai debug", "Deu ruim");
+            }
         }
 
         /// <summary>
@@ -334,9 +341,18 @@ namespace VisualGrafo
                 arestas = 0;
                 contadorComponentes = 0;
 
+                int j = 0;
                 for(int i = MenuArestas.Children.Count() - 1; i >= 6; i--) 
                 {
                     MenuArestas.Children.RemoveAt(i);
+                    
+                    j++;
+
+                    if(j == 3) 
+                    {
+                        MenuArestas.RowDefinitions.Remove(MenuArestas.RowDefinitions.Last());
+                        j = 0;
+                    }
                 }
             }
         }
@@ -515,8 +531,14 @@ namespace VisualGrafo
                 v.Ellipse.Fill = new SolidColorBrush(Windows.UI.Colors.Black);
 
                 //Definição dos numeros aleatorios dentro do escopo do canvas
-                v.X = random.Next(0, 1021);
-                v.Y = random.Next(0, 607);
+                v.X = random.Next(0, 1021 - 200/ordem + 10);
+                v.Y = random.Next(0, 607 - 200 / ordem + 10);
+
+                //Textblock pra armazenar o valor do vertice
+                TextBlock text = new TextBlock();
+                text.Text = v.Nametag.ToString();
+                text.Foreground = new SolidColorBrush(Windows.UI.Colors.Yellow);
+                BlocoDistribuicaoAleatoria.Children.Add(text);
 
                 //Adição da ellipse no canvas
                 BlocoDistribuicaoAleatoria.Children.Add(v.Ellipse);
@@ -524,6 +546,10 @@ namespace VisualGrafo
                 //Denições de suas posições no canvas
                 Canvas.SetLeft(v.Ellipse, v.X);
                 Canvas.SetTop(v.Ellipse, v.Y);
+
+                Canvas.SetLeft(text, v.X + (200 / ordem + 10) / 2);
+                Canvas.SetTop(text, v.Y + (200 / ordem + 10) / 2);
+                Canvas.SetZIndex(text, 10);
             }
 
             PegaArestas(ordem, BlocoDistribuicaoAleatoria);
@@ -594,11 +620,43 @@ namespace VisualGrafo
                         line.Y2 = y2 + ((200 / ordem) + 10) / 2;
                     }
 
+                    if (grafoCriado.IsDirigido) 
+                    {
+                        Ellipse setaSubstituto = new Ellipse();
+                        setaSubstituto.Stroke = new SolidColorBrush(Windows.UI.Colors.Black);
+                        setaSubstituto.Fill = new SolidColorBrush(Colors.Black);
+                        setaSubstituto.Height = 5;
+                        setaSubstituto.Width = 5;
+
+                        setaSubstituto.PointerEntered += delegate(object sender, PointerRoutedEventArgs e) 
+                        { SetaSubstituto_PointerEntered(sender, e, a.Entrada.Nametag.ToString(), a.Saida.Nametag.ToString(), a.Peso.ToString());};
+
+                        double mediaX = (line.X1 + line.X2) / 2;
+                        double mediaY = (line.Y1 + line.Y2) / 2;
+
+                        bloco.Children.Add(setaSubstituto);
+
+                        Canvas.SetLeft(setaSubstituto, (mediaX + line.X1) / 2);
+                        Canvas.SetTop(setaSubstituto, (mediaY + line.Y1) / 2);
+                    }
+
                     //Adiciona a aresta no canvas
                     bloco.Children.Add(line);
+
                     Canvas.SetZIndex(line, -99);
                 }
             }
+        }
+
+        /// <summary>
+        /// Evento para exibir as ligações em uma pequena janela
+        /// </summary>
+        private void SetaSubstituto_PointerEntered(object sender, PointerRoutedEventArgs e, string NomeEntrada, string NomeSaida, string NomePeso)
+        {
+            ExibirDirecao.Opacity = 1;
+            TextEntrada.Text = NomeEntrada;
+            TextSaida.Text = NomeSaida;
+            TextPeso.Text = NomePeso;
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -641,6 +699,8 @@ namespace VisualGrafo
             BlocoDistribuicaoAleatoria.IsHitTestVisible = false;
             BlocoDistribuicaoAleatoria.Opacity = 0;
             BlocoDistribuicaoAleatoria.Children.Clear();
+
+            ExibirDirecao.Opacity = 0;
         }
 
     }
