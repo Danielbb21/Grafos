@@ -9,7 +9,10 @@ using TesteGrafos;
 using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Graphics.Display;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.UI;
 using Windows.UI.Input.Inking;
 using Windows.UI.Popups;
@@ -19,6 +22,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 
@@ -52,9 +56,10 @@ namespace VisualGrafo
             RadioNaoDirigido.Click += Radio_ChangeValue;
             ClearGrafo.Click += Btn_ClearGrafo;
             ExibirInformacoes.Click += Btn_ExibirInformacoes;
-            ExibirTutorialCriar.Click += Btn_ExibirTutorialCriar;
             EncontrarCaminho.Click += Btn_EncontrarCaminho;
             GravarGrafo.Click += Btn_GravarGrafo;
+            SalvarRede.Click += Salvar_Click;
+            InfoAdicionais.Click += Btn_InfoAdicionais;
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -97,6 +102,9 @@ namespace VisualGrafo
             {
                 EsconderMenus();
 
+                SalvarRede.IsHitTestVisible = true;
+                SalvarRede.Opacity = 100;
+
                 BlocoDistribuicaoCircular.IsHitTestVisible = true;
                 BlocoDistribuicaoCircular.Opacity = 100;
 
@@ -107,6 +115,9 @@ namespace VisualGrafo
             else if (Selecao.SelectionBoxItem.ToString() == "Distribuição Aleatória" && grafoCriado != null)
             {
                 EsconderMenus();
+
+                SalvarRede.IsHitTestVisible = true;
+                SalvarRede.Opacity = 100;
 
                 BlocoDistribuicaoAleatoria.IsHitTestVisible = true;
                 BlocoDistribuicaoAleatoria.Opacity = 100;
@@ -145,6 +156,12 @@ namespace VisualGrafo
                 DefinicaoVertices.IsHitTestVisible = false;
                 RadioDirigido.IsHitTestVisible = false;
                 RadioNaoDirigido.IsHitTestVisible = false;
+                InfoAdicionais.IsHitTestVisible = true;
+                InfoAdicionais.Opacity = 100;
+                GravarGrafo.IsHitTestVisible = true;
+                GravarGrafo.Opacity = 100;
+                ClearGrafo.Opacity = 100;
+                ClearGrafo.IsHitTestVisible = true;
             }
         }
 
@@ -272,17 +289,34 @@ namespace VisualGrafo
                 grafoCriado.Conteudo.Where(v => v.Nametag == int.Parse(en.Text)).FirstOrDefault()
                                      .Adjacencia.RemoveAll(m => m.Saida.Nametag == int.Parse(sa.Text));
 
+                var ligacao = grafoCriado.adjacencyList[int.Parse(en.Text) - 1].Where(a => a.Item1 == int.Parse(sa.Text)).FirstOrDefault();
+
+                grafoCriado.adjacencyList[int.Parse(en.Text) - 1].Remove(ligacao);
+
+
+
+                grafoCriado.MatrizAdjacencia[int.Parse(en.Text) - 1, int.Parse(sa.Text) - 1] = 0;
+
                 //Caso o grafo não for dirigido, é retirado a ligação de sua saida com ele
                 if (!grafoCriado.IsDirigido)
                 {
                     grafoCriado.Conteudo.Where(v => v.Nametag == int.Parse(sa.Text)).FirstOrDefault()
                                      .Adjacencia.RemoveAll(m => m.Saida.Nametag == int.Parse(en.Text));
+
+                    var ligacao2 = grafoCriado.adjacencyList[int.Parse(sa.Text) - 1].Where(a => a.Item1 == int.Parse(en.Text)).FirstOrDefault();
+                    grafoCriado.adjacencyList[int.Parse(en.Text) - 1].Remove(ligacao2);
+
+                    grafoCriado.MatrizAdjacencia[int.Parse(sa.Text) - 1, int.Parse(en.Text) - 1] = 0;
                 }
+
+                grafoCriado.MatrizAdjacencia[int.Parse(en.Text), int.Parse(sa.Text)] = 0;
 
                 //Remove os textblocks da grid
                 MenuArestas.Children.RemoveAt(peso);
                 MenuArestas.Children.RemoveAt(saida);
                 MenuArestas.Children.RemoveAt(entrada);
+
+                MenuArestas.Height -= 20;
 
                 //Diminui o numero de arestaas
                 arestas--;
@@ -341,6 +375,14 @@ namespace VisualGrafo
                 arestas = 0;
                 contadorComponentes = 0;
 
+                GravarGrafo.IsHitTestVisible = false;
+                GravarGrafo.Opacity = 0;
+                ClearGrafo.Opacity = 0;
+                ClearGrafo.IsHitTestVisible = false;
+
+                InfoAdicionais.IsHitTestVisible = false;
+                InfoAdicionais.Opacity = 0;
+
                 int j = 0;
                 for(int i = MenuArestas.Children.Count() - 1; i >= 6; i--) 
                 {
@@ -360,9 +402,54 @@ namespace VisualGrafo
         /// <summary>
         /// Botâo para exibir a janela de tutorial
         /// </summary>
-        private void Btn_ExibirTutorialCriar(object sender, RoutedEventArgs e) 
+        private void Btn_InfoAdicionais(object sender, RoutedEventArgs e) 
         {
-            TutorialCriarGrafo.IsOpen = true;
+            TextMatrizCusto.Text = "";
+            TextMatrizAdjacencia.Text = "";
+            TextListAdjacencia.Text = "";
+
+            string MatrizAdjacencia = "\n", MatrizCusto = "\n";
+
+            for(int i = 0; i < vertices; i++) 
+            {
+                for(int j = 0; j < vertices; j++) 
+                {
+                    MatrizCusto += grafoCriado.MatrizAdjacencia[j, i].ToString();
+                    if (grafoCriado.MatrizAdjacencia[j, i] > 1) MatrizAdjacencia += "1";
+                    else MatrizAdjacencia += grafoCriado.MatrizAdjacencia[j, i].ToString();
+
+                    if (j + 1 != vertices) 
+                    {
+                        MatrizAdjacencia += ",";
+                        MatrizCusto += ",";
+                    }
+                }
+
+                MatrizAdjacencia += "\n";
+                MatrizCusto += "\n";
+            }
+
+            string VerticeFoco = "";
+            string VerticeLigados = " - ";
+
+            for(int i = 0; i < vertices; i++) 
+            {
+                VerticeFoco = (i + 1).ToString();
+                VerticeLigados = " - ";
+                for (int j = 0; j < grafoCriado.adjacencyList[i].Count(); j++) 
+                {
+                    VerticeLigados += grafoCriado.adjacencyList[i].ElementAt(j).Item1.ToString(); ;
+
+                    if (j + 1 != grafoCriado.adjacencyList[i].Count()) VerticeLigados += ",";
+                }
+
+                TextListAdjacencia.Text += VerticeFoco + VerticeLigados + "\n";
+            }
+
+            TextMatrizAdjacencia.Text = MatrizAdjacencia;
+            TextMatrizCusto.Text = MatrizCusto;
+
+            InfoAdicionaisPopUp.IsOpen = true;
         }
 
         /// <summary>
@@ -659,6 +746,51 @@ namespace VisualGrafo
             TextPeso.Text = NomePeso;
         }
 
+        private async void Salvar_Click(object sender, RoutedEventArgs e)
+        {
+            Canvas c;
+
+            if (Titulo.Text.Contains("CIRCULAR")) 
+            {
+                c = BlocoDistribuicaoCircular;
+            }
+            else 
+            {
+                c = BlocoDistribuicaoAleatoria;
+            }
+
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
+            await renderTargetBitmap.RenderAsync(c);
+            var pixelBuffer = await renderTargetBitmap.GetPixelsAsync();
+
+            var savePicker = new FileSavePicker();
+            savePicker.DefaultFileExtension = ".png";
+            savePicker.FileTypeChoices.Add(".png", new List<string> { ".png" });
+            savePicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            savePicker.SuggestedFileName = "rede" + ".png";
+
+            var saveFile = await savePicker.PickSaveFileAsync();
+
+            if (saveFile == null)
+                return;
+
+            using (var fileStream = await saveFile.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, fileStream);
+
+                encoder.SetPixelData(
+                    BitmapPixelFormat.Bgra8,
+                    BitmapAlphaMode.Straight,
+                    (uint)renderTargetBitmap.PixelWidth,
+                    (uint)renderTargetBitmap.PixelHeight,
+                    DisplayInformation.GetForCurrentView().LogicalDpi,
+                    DisplayInformation.GetForCurrentView().LogicalDpi,
+                    pixelBuffer.ToArray());
+
+                await encoder.FlushAsync();
+            }
+        }
+
         //////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
@@ -701,7 +833,9 @@ namespace VisualGrafo
             BlocoDistribuicaoAleatoria.Children.Clear();
 
             ExibirDirecao.Opacity = 0;
-        }
 
+            SalvarRede.IsHitTestVisible = false;
+            SalvarRede.Opacity = 0;
+        }
     }
 }

@@ -19,6 +19,7 @@
         <Canvas x:Name="MenuSelecao" Canvas.Top = "130" Width="342" Height="570">
             <Border  BorderBrush="Black" Background="Gray" BorderThickness="10" Height="614" Width="345" Canvas.Top="-46"/>
             <Button Foreground="White" Content="IR" FontSize="30" FontWeight="SemiBold" BorderThickness="5" x:Name="SelecionarPagina" Width="150" Height="59" Canvas.Left="17" Canvas.Top="-11" Background="DarkGray" BorderBrush="Black"/>
+            <Button Foreground="White" IsHitTestVisible="False" Opacity="0" Content="SALVAR" FontSize="30" FontWeight="SemiBold" BorderThickness="5" x:Name="SalvarRede" Width="150" Height="59" Canvas.Left="173" Canvas.Top="-11" Background="DarkGray" BorderBrush="Black"/>
             <ComboBox x:Name="Selecao" Canvas.Left="17" Canvas.Top="72" Width="310" Foreground="Black" Background="White" BorderBrush="Black" BorderThickness="5">
                 <ComboBoxItem Foreground="Black" Content="Criar grafo" IsSelected="True"/>
                 <ComboBoxItem Content="Informações sobre o grafo"/>
@@ -41,23 +42,23 @@
 
         <Canvas x:Name="BlocoCriarGrafo" Opacity="0" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
             <TextBlock Text="Número de Vértices:" Canvas.Left="21" FontSize="20" Canvas.Top="24"/>
-            <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="NumVertices" Width="201" Canvas.Left="219" Canvas.Top="24"/>
-            <Button Content="Ok" x:Name="DefinicaoVertices" Background="DimGray" Foreground="White" Canvas.Left="219" Canvas.Top="77" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
-            <Button Content="Apagar grafo" x:Name="ClearGrafo" Background="DimGray" Foreground="White" Canvas.Left="765" Canvas.Top="77" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
+            <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="NumVertices" Width="303" Canvas.Left="219" Canvas.Top="24"/>
+            <Button Content="Ok" x:Name="DefinicaoVertices" Background="DimGray" Foreground="White" Canvas.Left="219" Canvas.Top="77" Height="33" Width="303" BorderThickness="2" BorderBrush="DarkGray"/>
+            <Button Content="Apagar grafo" IsHitTestVisible="False" Opacity="0" x:Name="ClearGrafo" Background="DimGray" Foreground="White" Canvas.Left="810" Canvas.Top="508" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
 
-            <Button Content="Gravar grafo" x:Name="GravarGrafo" Background="DimGray" Foreground="White" Canvas.Left="765" Canvas.Top="475" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
+            <Button Content="Gravar grafo" IsHitTestVisible="False" Opacity="0" x:Name="GravarGrafo" Background="DimGray" Foreground="White" Canvas.Left="578" Canvas.Top="508" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
 
-            <Button x:Name="ExibirTutorialCriar" Content="Tutorial" Background="DimGray" Foreground="White" Canvas.Left="765" Canvas.Top="276" Height="33" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
+            <Button x:Name="InfoAdicionais" IsHitTestVisible="False" Opacity="0" Content="Dados sobre o grafo" Background="DimGray" Foreground="White" Canvas.Left="810" Canvas.Top="17" Height="35" Width="201" BorderThickness="2" BorderBrush="DarkGray"/>
 
 
             <TextBlock Text="Selecione o tipo de grafo:" Canvas.Left="21" FontSize="20" Canvas.Top="158"/>
             <RadioButton GroupName="TipoGrafo" x:Name="RadioDirigido"  Canvas.Left="287" Canvas.Top="158" Content="Dirigido" Width="87"/>
-            <RadioButton GroupName="TipoGrafo" IsChecked="True" x:Name="RadioNaoDirigido" Canvas.Left="407" Canvas.Top="158" Content="Não Dirigido"/>
+            <RadioButton GroupName="TipoGrafo" IsChecked="True" x:Name="RadioNaoDirigido" Canvas.Left="412" Canvas.Top="158" Content="Não Dirigido" Width="115"/>
 
             <TextBlock Text="Criar Aresta:" Canvas.Left="21" FontSize="20" Canvas.Top="268"/>
             <Button x:Name="CriarAresta" Content="Criar" IsHitTestVisible="False" Background="DimGray" Foreground="White" Canvas.Top="264" Width="96" Canvas.Left="426" Height="35"/>
 
-            <ScrollViewer x:Name="ScrollViewer" Height="280" Width="501" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible" Canvas.Left="21" Canvas.Top="306">
+            <ScrollViewer Canvas.Left="11" Canvas.Top="310" x:Name="ScrollViewer" Height="280" Width="521" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible">
                 <Grid IsHitTestVisible="False" x:Name="MenuArestas" Height="291" Width="501" Canvas.Left="21" Canvas.Top="304">
                     <Grid.Resources>
                         <SolidColorBrush x:Key="brush" Color="Black"/>
@@ -93,22 +94,26 @@
                 </Grid>
             </ScrollViewer>
 
-            <Popup x:Name="TutorialCriarGrafo" 
-                    IsOpen="False" 
-                    IsLightDismissEnabled="True"
-                    VerticalAlignment="Center" HorizontalAlignment="Center"               
-                    HorizontalOffset="200"
-                    VerticalOffset="148"
-                    LightDismissOverlayMode="Off">
+            <Popup x:Name="InfoAdicionaisPopUp" 
+                IsOpen="False"
+                Opacity="100"
+                IsLightDismissEnabled="True"               
+                LightDismissOverlayMode="Off" Margin="8,8,8,8" Canvas.Left="570" Canvas.Top="64" Height="427" Width="432">
 
-                <Canvas>
-                    <Border Background="Gray" BorderBrush="Black" BorderThickness="3" Width="500" Height="200">
-                        <Canvas>
-
-                        </Canvas>
-                    </Border>
-
-                </Canvas>
+                
+                 <Border BorderBrush="LightGray" BorderThickness="2" Canvas.Left="570" Canvas.Top="64" Height="427" Width="432">
+                    <ScrollViewer VerticalScrollMode="Enabled" Height="425" Width="432" VerticalScrollBarVisibility="Visible">
+                        <StackPanel x:Name="Info" Height="auto" Width="auto">
+                            <TextBlock Text="Matriz de Adjacência:"></TextBlock>
+                            <TextBlock x:Name="TextMatrizAdjacencia"/>
+                            <TextBlock Text="Matriz de Custo:"></TextBlock>
+                            <TextBlock x:Name="TextMatrizCusto"/>
+                            <TextBlock Text="Lista de Adjacência:"></TextBlock>
+                            <TextBlock x:Name="TextListAdjacencia"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+                
             </Popup>
         </Canvas>
 

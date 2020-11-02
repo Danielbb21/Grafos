@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.Storage.Provider;
 
 namespace TesteGrafos
 {
@@ -248,24 +250,22 @@ namespace TesteGrafos
 		}
 
 		//Grava o grafo em Texto no formato pajek
-		public void GravarTxt(bool IsDirigido)
+		public async void GravarTxt(bool IsDirigido)
 		{
-			StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-			//criando arquivo
-			string filePath = localFolder.Path + "\\" + "teste.txt";
 			string DataFile = "*Vertices ";
-			//Cria o arquivo se ele não existir
-			StreamWriter sw;
-			if (!File.Exists(filePath))
-			{
-				sw = File.CreateText(filePath);
-				sw.Close();
-			}
+
+			var savePicker = new FileSavePicker();
+			savePicker.DefaultFileExtension = ".txt";
+			savePicker.FileTypeChoices.Add(".txt", new List<string> { ".txt" });
+			savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+			savePicker.SuggestedFileName = "Grafo" + ".txt";
+
+			var saveFile = await savePicker.PickSaveFileAsync();
 
 			//Não grava-se o \n no arquivo
 			//Using isola uma declaração que nao funcionara fora dele
 			//Escreve no arquivo pulando linha
-			using (sw = File.CreateText(filePath))
+			using (var filestream = await saveFile.OpenAsync(FileAccessMode.ReadWrite))
 			{
 				//concatenação da string
 				List<Aresta> ListadeArestas = new List<Aresta>();
@@ -310,19 +310,25 @@ namespace TesteGrafos
 						DataFile += aresta.Entrada.Nametag + " " + aresta.Saida.Nametag + " " + aresta.Peso + "\n";
 					}
 				}
-				sw.WriteLine(DataFile);
-				sw.Close();
+
 			}
 
-			//Leitura dos dados
-			using (StreamReader sr = File.OpenText(filePath))
+			if (saveFile != null)
 			{
-				string s;
-				while ((s = sr.ReadLine()) != null)
-				{
-					Console.WriteLine(s);
-				}
+				CachedFileManager.DeferUpdates(saveFile);
+				await FileIO.WriteTextAsync(saveFile, DataFile);
+				FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(saveFile);
 			}
+
+			////Leitura dos dados
+			//using (StreamReader sr = File.OpenText(filePath))
+			//{
+			//	string s;
+			//	while ((s = sr.ReadLine()) != null)
+			//	{
+			//		Console.WriteLine(s);
+			//	}
+			//}
 		}
 	}
 }
