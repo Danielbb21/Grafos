@@ -89,7 +89,7 @@ namespace VisualGrafo
 
                 Titulo.Text = "GRAFOS: INFORMAÇÕES DO GRAFO";
             }
-            else if (Selecao.SelectionBoxItem.ToString() == "Caminho mínimo entre vértices")
+            else if (Selecao.SelectionBoxItem.ToString() == "Caminho mínimo entre vértices" && grafoCriado != null)
             {
                 EsconderMenus();
 
@@ -469,12 +469,12 @@ namespace VisualGrafo
         /// </summary>
         private void Btn_ExibirInformacoes(object sender, RoutedEventArgs e) 
         {
-            contadorComponentes = grafoCriado.ContadorComponentes();
+            if(grafoCriado != null) contadorComponentes = grafoCriado.ContadorComponentes();
             ContComp.Text = contadorComponentes.ToString();
             ContComp.HorizontalAlignment = HorizontalAlignment.Center;
 
             contadorComponentes = 0;
-            grafoCriado.ResetarCheque();
+            if (grafoCriado != null) grafoCriado.ResetarCheque();
 
             ContArestas.Text = arestas.ToString();
             ContArestas.HorizontalAlignment = HorizontalAlignment.Center;

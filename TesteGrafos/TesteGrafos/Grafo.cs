@@ -82,6 +82,8 @@ namespace TesteGrafos
 				this.MatrizAdjacencia[numDefinido2, numDefinido1] = Ligacao.Peso;
 
 				this.Conteudo.ElementAt(numDefinido2).Adjacencia.Add(a);
+
+				this.addEdgeAtEnd(Ligacao.Saida.Nametag - 1, Ligacao.Entrada.Nametag, 1);
 			}
 
 			this.addEdgeAtEnd(Ligacao.Entrada.Nametag - 1, Ligacao.Saida.Nametag, 1);
@@ -265,8 +267,7 @@ namespace TesteGrafos
 			//Não grava-se o \n no arquivo
 			//Using isola uma declaração que nao funcionara fora dele
 			//Escreve no arquivo pulando linha
-			using (var filestream = await saveFile.OpenAsync(FileAccessMode.ReadWrite))
-			{
+			
 				//concatenação da string
 				List<Aresta> ListadeArestas = new List<Aresta>();
 				
@@ -286,7 +287,7 @@ namespace TesteGrafos
                     foreach (var aresta in ListadeArestas)
                     {
 						DataFile += aresta.Entrada.Nametag + " " + aresta.Saida.Nametag + " " + aresta.Peso + "\n";
-                    }
+                   }
                 }
                 else
                 {
@@ -311,7 +312,7 @@ namespace TesteGrafos
 					}
 				}
 
-			}
+			
 
 			if (saveFile != null)
 			{

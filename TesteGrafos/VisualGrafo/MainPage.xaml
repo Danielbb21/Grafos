@@ -139,7 +139,7 @@
         </Canvas>
 
         <Canvas x:Name="BlocoCaminhoMinimo" Opacity="0" IsHitTestVisible="False" Width="1021" Height="607" Canvas.Left="345" Canvas.Top="93">
-            <Button Content="Encontrar Caminho" FontSize="20" x:Name="EncontrarCaminho" Background="DimGray" Foreground="White" Canvas.Left="44" Canvas.Top="304" Height="54" Width="139" BorderThickness="2" BorderBrush="DarkGray"/>
+            <Button Content="Encontrar Caminho" FontSize="20" x:Name="EncontrarCaminho" Background="DimGray" Foreground="White" Canvas.Left="44" Canvas.Top="304" Height="54" Width="198" BorderThickness="2" BorderBrush="DarkGray"/>
             <TextBlock Text="Vertice origem: " FontSize="20" Canvas.Left="44" Canvas.Top="101"/>
             <TextBlock Text="Vertice destino: " FontSize="20" Canvas.Left="44" Canvas.Top="182"/>
             <TextBox BeforeTextChanging="TextBox_OnBeforeTextChanging" x:Name="VerticeOrigem" Height="36" Width="219" Canvas.Left="208" Canvas.Top="101" />
