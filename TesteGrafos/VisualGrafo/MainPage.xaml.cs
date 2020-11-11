@@ -335,7 +335,7 @@ namespace VisualGrafo
             }
             catch 
             {
-                Mensagem("erro vai debug", "Deu ruim");
+                Mensagem("Erro", "Um erro inesperado aconteceu.");
             }
         }
 
